@@ -348,7 +348,7 @@ export default function FormPage() {
                     </div>
                   )}
 
-                  {/* 요금제 테이블 */}
+                  {/* 요금제 테이블 (Desktop) */}
                   <div className={styles.planTableWrapper}>
                     {filteredPlans.length > 0 ? (
                       <table className={styles.planTable}>
@@ -357,7 +357,7 @@ export default function FormPage() {
                             <th>요금제명 <span className={styles.sortIcon}>⇅</span></th>
                             <th>월납부금액 <span className={styles.sortIcon}>⇅</span></th>
                             <th>기본료 <span className={styles.sortIcon}>⇅</span></th>
-                            <th>프로모션할인금액 <span className={styles.sortIcon}>⇅</span></th>
+                            <th>프로모션할인 <span className={styles.sortIcon}>⇅</span></th>
                             <th>음성</th>
                             <th>문자</th>
                             <th>데이터</th>
@@ -386,6 +386,41 @@ export default function FormPage() {
                     ) : (
                       <div className={styles.noPlans}>
                         해당 조건의 요금제가 없습니다. 통신사 또는 결제 유형을 변경해주세요.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 요금제 카드 (Mobile) */}
+                  <div className={styles.planCardList}>
+                    {filteredPlans.length > 0 ? filteredPlans.map((plan) => (
+                      <div
+                        key={plan.name}
+                        className={`${styles.planCard} ${selectedPlan?.name === plan.name ? styles.planCardActive : ""}`}
+                        onClick={() => setSelectedPlan(plan)}
+                      >
+                        <div className={styles.planCardName}>{plan.name}</div>
+                        <div className={styles.planCardGrid}>
+                          <div className={styles.planCardItem}>
+                            <span className={styles.planCardItemLabel}>월 요금</span>
+                            <span className={`${styles.planCardItemValue} ${styles.planCardPrice}`}>{formatPrice(plan.monthly)}</span>
+                          </div>
+                          <div className={styles.planCardItem}>
+                            <span className={styles.planCardItemLabel}>할인</span>
+                            <span className={`${styles.planCardItemValue} ${styles.planCardDiscount}`}>{formatPrice(plan.discount)}</span>
+                          </div>
+                          <div className={styles.planCardItem}>
+                            <span className={styles.planCardItemLabel}>데이터</span>
+                            <span className={styles.planCardItemValue}>{plan.data}</span>
+                          </div>
+                          <div className={styles.planCardItem}>
+                            <span className={styles.planCardItemLabel}>음성</span>
+                            <span className={styles.planCardItemValue}>{plan.voice}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )) : (
+                      <div className={styles.noPlans}>
+                        해당 조건의 요금제가 없습니다.
                       </div>
                     )}
                   </div>
