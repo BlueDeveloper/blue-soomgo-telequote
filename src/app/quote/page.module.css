@@ -1,0 +1,474 @@
+.page {
+  min-height: 100vh;
+  background: var(--gray-50);
+  padding-top: var(--header-height);
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* Progress */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 40px;
+}
+
+.progressStep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.progressDot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gray-200);
+  color: var(--gray-400);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.progressDotActive {
+  background: var(--primary);
+  color: white;
+}
+
+.progressDotDone {
+  background: var(--primary);
+  color: white;
+}
+
+.progressLabel {
+  font-size: 13px;
+  color: var(--gray-400);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.progressLabelActive {
+  color: var(--gray-900);
+  font-weight: 600;
+}
+
+.progressLine {
+  flex: 1;
+  height: 2px;
+  background: var(--gray-200);
+  margin: 0 8px;
+  transition: background 0.3s;
+}
+
+.progressLineDone {
+  background: var(--primary);
+}
+
+/* Form Card */
+.formCard {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 40px 36px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-100);
+}
+
+.formTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+}
+
+.formDesc {
+  font-size: 15px;
+  color: var(--gray-500);
+  margin-bottom: 32px;
+}
+
+/* Selection Cards */
+.selectGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.selectCard {
+  padding: 16px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  background: white;
+}
+
+.selectCard:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.selectCardActive {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.selectCardIcon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.selectCardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.selectCardDesc {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin-top: 4px;
+}
+
+/* Form Fields */
+.fieldGroup {
+  margin-bottom: 20px;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 8px;
+}
+
+.fieldRequired {
+  color: #EF4444;
+  margin-left: 2px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  color: var(--gray-900);
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 196, 113, 0.1);
+}
+
+.input::placeholder {
+  color: var(--gray-400);
+}
+
+.textarea {
+  composes: input;
+  min-height: 120px;
+  resize: vertical;
+}
+
+.select {
+  composes: input;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+/* Radio Options */
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.radioOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.radioOption:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.radioOptionActive {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.radioDot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.radioDotActive {
+  border-color: var(--primary);
+}
+
+.radioDotInner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  transform: scale(0);
+  transition: transform 0.2s;
+}
+
+.radioDotInnerActive {
+  transform: scale(1);
+}
+
+.radioLabel {
+  font-size: 15px;
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+/* Time Selection */
+.timeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.timeChip {
+  padding: 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-size: 14px;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.timeChip:hover {
+  border-color: var(--primary);
+}
+
+.timeChipActive {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+/* Buttons */
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.btnBack {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-600);
+  background: white;
+  transition: all 0.2s;
+}
+
+.btnBack:hover {
+  background: var(--gray-50);
+}
+
+.btnNext {
+  flex: 2;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.btnNext:hover {
+  background: var(--primary-dark);
+}
+
+.btnNextDisabled {
+  background: var(--gray-300);
+  cursor: not-allowed;
+}
+
+.btnNextDisabled:hover {
+  background: var(--gray-300);
+}
+
+.btnSubmit {
+  flex: 1;
+  padding: 16px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.btnSubmit:hover {
+  background: var(--primary-dark);
+}
+
+/* Complete */
+.complete {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.completeIcon {
+  width: 80px;
+  height: 80px;
+  background: var(--primary-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin: 0 auto 24px;
+}
+
+.complete h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-bottom: 12px;
+}
+
+.complete p {
+  font-size: 15px;
+  color: var(--gray-500);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.completeInfo {
+  margin-top: 32px;
+  padding: 20px;
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.completeInfoRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.completeInfoRow + .completeInfoRow {
+  border-top: 1px solid var(--gray-200);
+}
+
+.completeInfoLabel {
+  color: var(--gray-500);
+}
+
+.completeInfoValue {
+  color: var(--gray-900);
+  font-weight: 600;
+}
+
+.completeActions {
+  margin-top: 32px;
+  display: flex;
+  gap: 12px;
+}
+
+.btnHome {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-600);
+  background: white;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.btnHome:hover {
+  background: var(--gray-50);
+}
+
+.btnAnother {
+  flex: 1;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.btnAnother:hover {
+  background: var(--primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .container {
+    padding: 24px 16px 60px;
+  }
+
+  .formCard {
+    padding: 28px 20px;
+  }
+
+  .selectGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .timeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .progressLabel {
+    display: none;
+  }
+}
