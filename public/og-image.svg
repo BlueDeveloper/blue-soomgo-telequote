@@ -8,10 +8,10 @@
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="60" y="60" width="64" height="64" rx="12" fill="rgba(255,255,255,0.25)"/>
   <text x="92" y="107" font-family="Arial,sans-serif" font-size="36" font-weight="800" fill="white" text-anchor="middle">T</text>
-  <text x="140" y="107" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="white">텔레견적</text>
-  <text x="600" y="280" font-family="Arial,sans-serif" font-size="56" font-weight="800" fill="white" text-anchor="middle">전화 한 통으로 받는</text>
-  <text x="600" y="355" font-family="Arial,sans-serif" font-size="56" font-weight="800" fill="#FFD93D" text-anchor="middle">빠르고 정확한 견적</text>
-  <text x="600" y="430" font-family="Arial,sans-serif" font-size="24" fill="rgba(255,255,255,0.85)" text-anchor="middle">설비 · 전기 · 인테리어 · 이사 · 청소 · 에어컨 전문가 매칭</text>
+  <text x="140" y="107" font-family="Arial,sans-serif" font-size="28" font-weight="700" fill="white">텔레폼</text>
+  <text x="600" y="280" font-family="Arial,sans-serif" font-size="56" font-weight="800" fill="white" text-anchor="middle">모든 통신사 신청서</text>
+  <text x="600" y="355" font-family="Arial,sans-serif" font-size="56" font-weight="800" fill="#FFD93D" text-anchor="middle">무료 작성 &amp; 출력</text>
+  <text x="600" y="430" font-family="Arial,sans-serif" font-size="24" fill="rgba(255,255,255,0.85)" text-anchor="middle">SKT · KT · LG U+ · 알뜰폰 · 선불폰 · 법인 신청서 지원</text>
   <rect x="450" y="480" width="300" height="56" rx="28" fill="white"/>
-  <text x="600" y="516" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#00C471" text-anchor="middle">무료 견적받기 →</text>
+  <text x="600" y="516" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#00C471" text-anchor="middle">신청서 작성하기 →</text>
 </svg>

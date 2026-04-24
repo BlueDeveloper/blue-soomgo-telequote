@@ -450,6 +450,18 @@
   padding: 28px;
 }
 
+.featureIcon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.featureTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+}
+
 .reviewStars {
   display: flex;
   gap: 2px;
