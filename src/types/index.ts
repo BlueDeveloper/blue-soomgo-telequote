@@ -7,10 +7,34 @@ export interface Carrier {
   forms: string;
   sort_order: number;
   parent_id: string | null;
+  payment_type: "postpaid" | "prepaid" | "both";
   is_active: number;
   created_at: string;
   updated_at: string;
   children?: Carrier[];
+}
+
+export interface Notice {
+  id: number;
+  title: string;
+  content: string;
+  is_pinned: number;
+  is_active: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Inquiry {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  title: string;
+  content: string;
+  reply: string | null;
+  replied_at: string | null;
+  is_active: number;
+  created_at: string;
 }
 
 export interface Plan {

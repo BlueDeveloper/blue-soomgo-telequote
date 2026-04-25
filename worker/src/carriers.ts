@@ -69,17 +69,17 @@ async function getCarrier(env: Env, id: string): Promise<Response> {
 
 async function createCarrier(env: Env, request: Request): Promise<Response> {
   const body = await request.json<Record<string, unknown>>();
-  const { id, icon, iconStyle, title, description, forms, sortOrder, parentId } = body as {
+  const { id, icon, iconStyle, title, description, forms, sortOrder, parentId, paymentType } = body as {
     id: string; icon: string; iconStyle: string; title: string;
-    description: string; forms: string; sortOrder: number; parentId: string | null;
+    description: string; forms: string; sortOrder: number; parentId: string | null; paymentType: string;
   };
 
   if (!id || !title) return json({ ok: false, error: "id와 title은 필수입니다" }, 400);
 
   await env.DB.prepare(
-    `INSERT INTO carriers (id, icon, icon_style, title, description, forms, sort_order, parent_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  ).bind(id, icon || "📱", iconStyle || "serviceIconBlue", title, description || "", forms || "", sortOrder || 0, parentId || null).run();
+    `INSERT INTO carriers (id, icon, icon_style, title, description, forms, sort_order, parent_id, payment_type)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(id, icon || "📱", iconStyle || "serviceIconBlue", title, description || "", forms || "", sortOrder || 0, parentId || null, paymentType || "both").run();
 
   return json({ ok: true, data: { id } }, 201);
 }
@@ -92,9 +92,9 @@ async function updateCarrier(env: Env, id: string, request: Request): Promise<Re
   const fieldMap: Record<string, string> = {
     icon: "icon", iconStyle: "icon_style", title: "title",
     description: "description", forms: "forms", sortOrder: "sort_order",
-    isActive: "is_active", parentId: "parent_id",
+    isActive: "is_active", parentId: "parent_id", paymentType: "payment_type",
     icon_style: "icon_style", sort_order: "sort_order",
-    is_active: "is_active", parent_id: "parent_id",
+    is_active: "is_active", parent_id: "parent_id", payment_type: "payment_type",
   };
 
   for (const [key, val] of Object.entries(body)) {

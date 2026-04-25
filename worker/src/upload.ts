@@ -1,0 +1,37 @@
+import { Env, json, requireAuth } from "./auth";
+
+export async function handleUpload(request: Request, env: Env): Promise<Response> {
+  const authErr = await requireAuth(request, env);
+  if (authErr) return authErr;
+
+  if (request.method !== "POST") return json({ ok: false, error: "Method not allowed" }, 405);
+
+  const formData = await request.formData();
+  const file = formData.get("file") as File | null;
+  if (!file) return json({ ok: false, error: "파일이 없습니다" }, 400);
+
+  const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+  const allowed = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+  if (!allowed.includes(ext)) return json({ ok: false, error: "지원하지 않는 파일 형식입니다" }, 400);
+
+  const key = `icons/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  await env.R2.put(key, file.stream(), {
+    httpMetadata: { contentType: file.type },
+  });
+
+  const url = `https://hlmobile-api.raon-foodtruck.workers.dev/r2/${key}`;
+  return json({ ok: true, data: { url, key } }, 201);
+}
+
+export async function handleR2Get(request: Request, env: Env, path: string): Promise<Response> {
+  const key = path.replace("/r2/", "");
+  const obj = await env.R2.get(key);
+  if (!obj) return new Response("Not found", { status: 404 });
+
+  return new Response(obj.body, {
+    headers: {
+      "Content-Type": obj.httpMetadata?.contentType || "image/png",
+      "Cache-Control": "public, max-age=31536000, immutable",
+    },
+  });
+}

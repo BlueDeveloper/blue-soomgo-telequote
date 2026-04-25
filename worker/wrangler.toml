@@ -6,3 +6,7 @@ compatibility_date = "2024-12-01"
 binding = "DB"
 database_name = "hlmobile-db"
 database_id = "bf45ac77-7f56-4f17-a424-0bf83e884d55"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "hlmobile-images"

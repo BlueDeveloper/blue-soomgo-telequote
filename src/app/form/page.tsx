@@ -8,13 +8,6 @@ import { fetchCarrierTree, fetchPlans } from "@/lib/api";
 import type { Carrier, Plan } from "@/types";
 import styles from "./page.module.css";
 
-const formTypes = [
-  { id: "new", title: "신규 가입", desc: "새 번호로 개통" },
-  { id: "mnp", title: "번호이동", desc: "기존 번호 유지하며 통신사 변경" },
-  { id: "device", title: "기기변경", desc: "같은 통신사에서 단말기만 교체" },
-  { id: "cancel", title: "해지", desc: "회선 해지 신청" },
-];
-
 const TOTAL_STEPS = 5; // 대분류 → 알뜰폰 → 요금제 → 정보 → 확인
 
 function FormContent() {
@@ -25,7 +18,6 @@ function FormContent() {
   const [tree, setTree] = useState<Carrier[]>([]);
   const [selectedMno, setSelectedMno] = useState("");
   const [selectedCarrier, setSelectedCarrier] = useState(initialCarrier);
-  const [selectedFormType, setSelectedFormType] = useState("");
 
   // 요금제
   const [paymentType, setPaymentType] = useState<"postpaid" | "prepaid">("postpaid");
@@ -34,10 +26,20 @@ function FormContent() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [plansLoading, setPlansLoading] = useState(false);
 
-  // 개인정보
+  // 신청서 정보
   const [formData, setFormData] = useState({
-    name: "", birth: "", phone: "", idType: "주민등록증",
-    idNumber: "", address: "", device: "", memo: "",
+    usimSerial: "",
+    customerType: "개인" as string,
+    contactNumber: "",
+    subscriberName: "",
+    birthDate: "",
+    idNumber: "",
+    nationality: "대한민국",
+    address: "",
+    addressDetail: "",
+    activationType: "신규가입" as string,
+    desiredNumber: "",
+    storeName: "",
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -82,8 +84,8 @@ function FormContent() {
     switch (step) {
       case 1: return selectedMno !== "";
       case 2: return selectedCarrier !== "";
-      case 3: return selectedFormType !== "" && selectedPlan !== null;
-      case 4: return formData.name !== "" && formData.phone !== "" && formData.birth !== "";
+      case 3: return selectedPlan !== null;
+      case 4: return formData.subscriberName !== "" && formData.contactNumber !== "" && formData.birthDate !== "";
       case 5: return true;
       default: return false;
     }
@@ -99,7 +101,6 @@ function FormContent() {
 
   const mnoName = tree.find(m => m.id === selectedMno)?.title || "";
   const carrierName = mvnoList.find((c) => c.id === selectedCarrier)?.title || selectedCarrier;
-  const formTypeName = formTypes.find((f) => f.id === selectedFormType)?.title || "";
   const stepLabels = ["통신망", "통신사", "요금제", "정보", "확인"];
   const formatPrice = (n: number) => n.toLocaleString() + "원";
 
@@ -120,10 +121,6 @@ function FormContent() {
                     <span className={styles.completeInfoValue}>{carrierName}</span>
                   </div>
                   <div className={styles.completeInfoRow}>
-                    <span className={styles.completeInfoLabel}>신청 유형</span>
-                    <span className={styles.completeInfoValue}>{formTypeName}</span>
-                  </div>
-                  <div className={styles.completeInfoRow}>
                     <span className={styles.completeInfoLabel}>요금제</span>
                     <span className={styles.completeInfoValue}>{selectedPlan?.name}</span>
                   </div>
@@ -132,23 +129,21 @@ function FormContent() {
                     <span className={styles.completeInfoValue}>{selectedPlan ? formatPrice(selectedPlan.monthly) : ""}</span>
                   </div>
                   <div className={styles.completeInfoRow}>
-                    <span className={styles.completeInfoLabel}>신청자</span>
-                    <span className={styles.completeInfoValue}>{formData.name}</span>
+                    <span className={styles.completeInfoLabel}>가입자명</span>
+                    <span className={styles.completeInfoValue}>{formData.subscriberName}</span>
                   </div>
                   <div className={styles.completeInfoRow}>
                     <span className={styles.completeInfoLabel}>생년월일</span>
-                    <span className={styles.completeInfoValue}>{formData.birth}</span>
+                    <span className={styles.completeInfoValue}>{formData.birthDate}</span>
                   </div>
                   <div className={styles.completeInfoRow}>
                     <span className={styles.completeInfoLabel}>연락처</span>
-                    <span className={styles.completeInfoValue}>{formData.phone}</span>
+                    <span className={styles.completeInfoValue}>{formData.contactNumber}</span>
                   </div>
-                  {formData.device && (
-                    <div className={styles.completeInfoRow}>
-                      <span className={styles.completeInfoLabel}>단말기</span>
-                      <span className={styles.completeInfoValue}>{formData.device}</span>
-                    </div>
-                  )}
+                  <div className={styles.completeInfoRow}>
+                    <span className={styles.completeInfoLabel}>고객유형</span>
+                    <span className={styles.completeInfoValue}>{formData.customerType}</span>
+                  </div>
                 </div>
                 <div className={styles.completeActions}>
                   <Link href="/" className={styles.btnHome}>홈으로</Link>
@@ -235,23 +230,10 @@ function FormContent() {
             {/* Step 3: 신청 유형 + 요금제 */}
             {step === 3 && (
               <>
-                <h2 className={styles.formTitle}>신청 유형과 요금제를 선택하세요</h2>
-                <p className={styles.formDesc}>{carrierName} 신청서 양식을 선택하고 요금제를 지정해주세요.</p>
+                <h2 className={styles.formTitle}>요금제를 선택하세요</h2>
+                <p className={styles.formDesc}>{carrierName} 요금제를 선택해주세요.</p>
 
                 <div className={styles.planSection}>
-                  <div className={styles.planSectionTitle}>신청 유형</div>
-                  <div className={styles.formTypeGrid}>
-                    {formTypes.map((ft) => (
-                      <div key={ft.id} className={`${styles.formTypeCard} ${selectedFormType === ft.id ? styles.formTypeCardActive : ""}`} onClick={() => setSelectedFormType(ft.id)}>
-                        <div className={styles.formTypeTitle}>{ft.title}</div>
-                        <div className={styles.formTypeDesc}>{ft.desc}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className={styles.planSection}>
-                  <div className={styles.planSectionTitle}>요금제 선택</div>
 
                   <div className={styles.paymentToggle}>
                     <button className={`${styles.toggleBtn} ${paymentType === "postpaid" ? styles.toggleBtnActive : ""}`} onClick={() => { setPaymentType("postpaid"); setSelectedPlan(null); }}>후불</button>
@@ -358,48 +340,83 @@ function FormContent() {
               </>
             )}
 
-            {/* Step 4: 개인정보 */}
+            {/* Step 4: 신청서 정보 입력 */}
             {step === 4 && (
               <>
-                <h2 className={styles.formTitle}>신청자 정보를 입력하세요</h2>
+                <h2 className={styles.formTitle}>신청서 정보를 입력하세요</h2>
                 <p className={styles.formDesc}>신청서에 기재될 정보를 입력해주세요.</p>
+
                 <div className={styles.fieldRow}>
                   <div className={styles.fieldGroup}>
-                    <label className={styles.fieldLabel}>이름<span className={styles.fieldRequired}>*</span></label>
-                    <input type="text" className={styles.input} placeholder="홍길동" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                    <label className={styles.fieldLabel}>USIM 일련번호</label>
+                    <input type="text" className={styles.input} placeholder="USIM 일련번호" value={formData.usimSerial} onChange={(e) => setFormData({ ...formData, usimSerial: e.target.value })} />
                   </div>
                   <div className={styles.fieldGroup}>
-                    <label className={styles.fieldLabel}>생년월일<span className={styles.fieldRequired}>*</span></label>
-                    <input type="text" className={styles.input} placeholder="YYYYMMDD" value={formData.birth} onChange={(e) => setFormData({ ...formData, birth: e.target.value })} />
-                  </div>
-                </div>
-                <div className={styles.fieldRow}>
-                  <div className={styles.fieldGroup}>
-                    <label className={styles.fieldLabel}>연락처<span className={styles.fieldRequired}>*</span></label>
-                    <input type="tel" className={styles.input} placeholder="010-0000-0000" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                  </div>
-                  <div className={styles.fieldGroup}>
-                    <label className={styles.fieldLabel}>신분증 종류</label>
-                    <select className={styles.select} value={formData.idType} onChange={(e) => setFormData({ ...formData, idType: e.target.value })}>
-                      <option>주민등록증</option>
-                      <option>운전면허증</option>
-                      <option>여권</option>
-                      <option>외국인등록증</option>
+                    <label className={styles.fieldLabel}>고객유형<span className={styles.fieldRequired}>*</span></label>
+                    <select className={styles.select} value={formData.customerType} onChange={(e) => setFormData({ ...formData, customerType: e.target.value })}>
+                      <option>개인</option>
+                      <option>외국인</option>
+                      <option>청소년</option>
+                      <option>개인사업자</option>
+                      <option>법인사업자</option>
                     </select>
                   </div>
                 </div>
-                <div className={styles.fieldGroup}>
-                  <label className={styles.fieldLabel}>주소</label>
-                  <input type="text" className={styles.input} placeholder="주소를 입력하세요" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
-                </div>
+
                 <div className={styles.fieldRow}>
                   <div className={styles.fieldGroup}>
-                    <label className={styles.fieldLabel}>단말기명</label>
-                    <input type="text" className={styles.input} placeholder="예: 갤럭시 S25" value={formData.device} onChange={(e) => setFormData({ ...formData, device: e.target.value })} />
+                    <label className={styles.fieldLabel}>가입자명<span className={styles.fieldRequired}>*</span></label>
+                    <input type="text" className={styles.input} placeholder="홍길동" value={formData.subscriberName} onChange={(e) => setFormData({ ...formData, subscriberName: e.target.value })} />
                   </div>
                   <div className={styles.fieldGroup}>
-                    <label className={styles.fieldLabel}>비고</label>
-                    <input type="text" className={styles.input} placeholder="추가 메모" value={formData.memo} onChange={(e) => setFormData({ ...formData, memo: e.target.value })} />
+                    <label className={styles.fieldLabel}>개통번호 연락번호<span className={styles.fieldRequired}>*</span></label>
+                    <input type="tel" className={styles.input} placeholder="010-0000-0000" value={formData.contactNumber} onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })} />
+                  </div>
+                </div>
+
+                <div className={styles.fieldRow}>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>생년월일<span className={styles.fieldRequired}>*</span></label>
+                    <input type="text" className={styles.input} placeholder="YYYYMMDD" value={formData.birthDate} onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })} />
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>신분증번호/여권번호</label>
+                    <input type="text" className={styles.input} placeholder="신분증 또는 여권 번호" value={formData.idNumber} onChange={(e) => setFormData({ ...formData, idNumber: e.target.value })} />
+                  </div>
+                </div>
+
+                <div className={styles.fieldRow}>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>국적</label>
+                    <input type="text" className={styles.input} placeholder="대한민국" value={formData.nationality} onChange={(e) => setFormData({ ...formData, nationality: e.target.value })} />
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>개통구분</label>
+                    <select className={styles.select} value={formData.activationType} onChange={(e) => setFormData({ ...formData, activationType: e.target.value })}>
+                      <option>신규가입</option>
+                      <option>번호이동</option>
+                      <option>기기변경</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label className={styles.fieldLabel}>주소</label>
+                  <input type="text" className={styles.input} placeholder="주소" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+                </div>
+                <div className={styles.fieldGroup}>
+                  <label className={styles.fieldLabel}>상세주소</label>
+                  <input type="text" className={styles.input} placeholder="상세주소" value={formData.addressDetail} onChange={(e) => setFormData({ ...formData, addressDetail: e.target.value })} />
+                </div>
+
+                <div className={styles.fieldRow}>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>희망번호</label>
+                    <input type="text" className={styles.input} placeholder="010-XXXX-XXXX" value={formData.desiredNumber} onChange={(e) => setFormData({ ...formData, desiredNumber: e.target.value })} />
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.fieldLabel}>판매점명</label>
+                    <input type="text" className={styles.input} placeholder="판매점명" value={formData.storeName} onChange={(e) => setFormData({ ...formData, storeName: e.target.value })} />
                   </div>
                 </div>
               </>
@@ -413,16 +430,19 @@ function FormContent() {
                 <div className={styles.completeInfo}>
                   <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>통신망</span><span className={styles.completeInfoValue}>{mnoName}</span></div>
                   <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>통신사</span><span className={styles.completeInfoValue}>{carrierName}</span></div>
-                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>신청 유형</span><span className={styles.completeInfoValue}>{formTypeName}</span></div>
+                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>개통구분</span><span className={styles.completeInfoValue}>{formData.activationType}</span></div>
                   <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>결제 방식</span><span className={styles.completeInfoValue}>{paymentType === "postpaid" ? "후불" : "선불"}</span></div>
                   <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>요금제</span><span className={styles.completeInfoValue}>{selectedPlan?.name}</span></div>
                   <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>월 요금</span><span className={styles.completeInfoValue}>{selectedPlan ? formatPrice(selectedPlan.monthly) : ""}</span></div>
-                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>이름</span><span className={styles.completeInfoValue}>{formData.name}</span></div>
-                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>생년월일</span><span className={styles.completeInfoValue}>{formData.birth}</span></div>
-                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>연락처</span><span className={styles.completeInfoValue}>{formData.phone}</span></div>
-                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>신분증</span><span className={styles.completeInfoValue}>{formData.idType}</span></div>
-                  {formData.address && <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>주소</span><span className={styles.completeInfoValue}>{formData.address}</span></div>}
-                  {formData.device && <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>단말기</span><span className={styles.completeInfoValue}>{formData.device}</span></div>}
+                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>가입자명</span><span className={styles.completeInfoValue}>{formData.subscriberName}</span></div>
+                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>생년월일</span><span className={styles.completeInfoValue}>{formData.birthDate}</span></div>
+                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>연락처</span><span className={styles.completeInfoValue}>{formData.contactNumber}</span></div>
+                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>고객유형</span><span className={styles.completeInfoValue}>{formData.customerType}</span></div>
+                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>개통구분</span><span className={styles.completeInfoValue}>{formData.activationType}</span></div>
+                  {formData.usimSerial && <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>USIM</span><span className={styles.completeInfoValue}>{formData.usimSerial}</span></div>}
+                  {formData.address && <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>주소</span><span className={styles.completeInfoValue}>{formData.address} {formData.addressDetail}</span></div>}
+                  {formData.desiredNumber && <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>희망번호</span><span className={styles.completeInfoValue}>{formData.desiredNumber}</span></div>}
+                  {formData.storeName && <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>판매점</span><span className={styles.completeInfoValue}>{formData.storeName}</span></div>}
                 </div>
               </>
             )}

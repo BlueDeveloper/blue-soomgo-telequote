@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { fetchCarrierTree, createCarrier, updateCarrier, deleteCarrier } from "@/lib/api";
+import { fetchCarrierTree, createCarrier, updateCarrier, deleteCarrier, uploadImage } from "@/lib/api";
 import type { Carrier } from "@/types";
 import styles from "../page.module.css";
 
@@ -14,7 +14,8 @@ export default function CarriersPage() {
   const [modal, setModal] = useState<"create-mno" | "create-mvno" | "edit" | null>(null);
   const [editing, setEditing] = useState<Carrier | null>(null);
   const [targetMno, setTargetMno] = useState<string>("");
-  const [form, setForm] = useState({ id: "", icon: "", title: "", description: "", forms: "", sort_order: 0 });
+  const [form, setForm] = useState({ id: "", icon: "", title: "", description: "", forms: "", sort_order: 0, paymentType: "both" as string });
+  const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
   const load = useCallback(async () => {
@@ -30,7 +31,7 @@ export default function CarriersPage() {
   useEffect(() => { load(); }, [load]);
 
   const openCreateMno = () => {
-    setForm({ id: "", icon: "", title: "", description: "", forms: "", sort_order: tree.length + 1 });
+    setForm({ id: "", icon: "", title: "", description: "", forms: "", sort_order: tree.length + 1, paymentType: "both" });
     setEditing(null);
     setModal("create-mno");
   };
@@ -39,13 +40,13 @@ export default function CarriersPage() {
     const mno = tree.find((m) => m.id === mnoId);
     const childCount = mno?.children?.length || 0;
     setTargetMno(mnoId);
-    setForm({ id: "", icon: "", title: "", description: "", forms: "가입신청서", sort_order: childCount + 1 });
+    setForm({ id: "", icon: "", title: "", description: "", forms: "가입신청서", sort_order: childCount + 1, paymentType: "both" });
     setEditing(null);
     setModal("create-mvno");
   };
 
   const openEdit = (c: Carrier) => {
-    setForm({ id: c.id, icon: c.icon, title: c.title, description: c.description, forms: c.forms, sort_order: c.sort_order });
+    setForm({ id: c.id, icon: c.icon, title: c.title, description: c.description, forms: c.forms, sort_order: c.sort_order, paymentType: c.payment_type || "both" });
     setEditing(c);
     setModal("edit");
   };
@@ -148,7 +149,7 @@ export default function CarriersPage() {
                               {renderIcon(mvno.icon, mvno.title, 24)}
                               <div>
                                 <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-0)" }}>{mvno.title}</div>
-                                <div style={{ fontSize: 11, color: "var(--text-3)" }}>{mvno.id} · {mvno.description}</div>
+                                <div style={{ fontSize: 11, color: "var(--text-3)" }}>{mvno.id} · {mvno.description} · {mvno.payment_type === "postpaid" ? "후불" : mvno.payment_type === "prepaid" ? "선불" : "후불+선불"}</div>
                               </div>
                             </div>
                             <div style={{ display: "flex", gap: 6 }}>
@@ -186,20 +187,41 @@ export default function CarriersPage() {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>아이콘 (이모지 또는 이미지 URL)</label>
-                <input className={styles.formInput} value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} placeholder="📱 또는 https://..." />
-                {form.icon && (
-                  <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 12, color: "var(--text-3)" }}>미리보기:</span>
-                    {renderIcon(form.icon, "preview", 40)}
-                  </div>
-                )}
+                <label className={styles.formLabel}>아이콘 이미지</label>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  {form.icon && renderIcon(form.icon, "preview", 48)}
+                  <label style={{ padding: "10px 16px", background: "var(--surface-1)", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600, color: "var(--text-1)", border: "1px solid var(--border)" }}>
+                    {uploading ? "업로드 중..." : "이미지 선택"}
+                    <input type="file" accept="image/*" hidden onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploading(true);
+                      const res = await uploadImage(file);
+                      setUploading(false);
+                      if (res.ok && res.data) setForm({ ...form, icon: res.data.url });
+                      else alert("업로드 실패");
+                    }} />
+                  </label>
+                  <span style={{ fontSize: 12, color: "var(--text-3)" }}>또는</span>
+                  <input className={styles.formInput} value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} placeholder="URL 직접 입력" style={{ flex: 1 }} />
+                </div>
               </div>
 
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>설명</label>
                 <input className={styles.formInput} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="예: KT 알뜰폰" />
               </div>
+
+              {modal === "create-mvno" || (modal === "edit" && editing?.parent_id) ? (
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>결제 방식</label>
+                  <select className={styles.formSelect} value={form.paymentType} onChange={(e) => setForm({ ...form, paymentType: e.target.value })}>
+                    <option value="both">후불 + 선불</option>
+                    <option value="postpaid">후불만</option>
+                    <option value="prepaid">선불만</option>
+                  </select>
+                </div>
+              ) : null}
 
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
