@@ -12,10 +12,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://telequote.pages.dev";
-const SITE_NAME = "텔레폼";
+const SITE_URL = "https://hlmobile.pages.dev";
+const SITE_NAME = "hlmobile";
 const SITE_DESCRIPTION =
-  "텔레폼 — 모든 통신사 가입신청서를 무료로 작성하고 출력하세요. SKT, KT, LG U+, 알뜰폰 신규가입·번호이동·기기변경·해지 양식을 한 곳에서.";
+  "hlmobile — 모든 통신사 가입신청서를 무료로 작성하고 출력하세요. SKT, KT, LG U+, 알뜰폰 신규가입·번호이동·기기변경·해지 양식을 한 곳에서.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    "텔레폼",
+    "hlmobile",
     "통신사 신청서",
     "가입신청서",
     "번호이동 신청서",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
         url: `${SITE_URL}/og-image.svg`,
         width: 1200,
         height: 630,
-        alt: "텔레폼 — 모든 통신사 신청서 무료 출력",
+        alt: "hlmobile — 모든 통신사 신청서 무료 출력",
       },
     ],
   },

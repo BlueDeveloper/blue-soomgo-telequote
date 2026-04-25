@@ -268,7 +268,7 @@ export default function Home() {
       <section id="features" className={styles.reviews}>
         <div className={styles.reviewsInner}>
           <span className={styles.sectionTag}>특징</span>
-          <h2 className={styles.sectionTitle}>왜 텔레폼인가요?</h2>
+          <h2 className={styles.sectionTitle}>왜 HL Mobile인가요?</h2>
           <p className={styles.sectionDesc}>
             신청서 작성이 이렇게 쉬울 수 있습니다.
           </p>
@@ -290,7 +290,7 @@ export default function Home() {
           <span className={styles.sectionTag}>이용 후기</span>
           <h2 className={styles.sectionTitle}>실제 이용 후기</h2>
           <p className={styles.sectionDesc}>
-            텔레폼을 이용한 분들의 생생한 후기입니다.
+            HL Mobile을 이용한 분들의 생생한 후기입니다.
           </p>
           <div className={styles.reviewGrid}>
             {reviews.map((r) => (
@@ -332,8 +332,8 @@ export default function Home() {
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>
             <div className={styles.footerLogo}>
-              <span className={styles.footerLogoIcon}>T</span>
-              텔레폼
+              <span className={styles.footerLogoIcon}>H</span>
+              hlmobile
             </div>
             <p className={styles.footerDesc}>
               모든 통신사 신청서를 무료로 작성하고 출력하세요.
@@ -368,7 +368,7 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.footerBottom}>
-          © 2026 텔레폼. All rights reserved.
+          © 2026 hlmobile. All rights reserved.
         </div>
       </footer>
     </>

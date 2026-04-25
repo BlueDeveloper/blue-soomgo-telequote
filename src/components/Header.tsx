@@ -6,8 +6,8 @@ export default function Header() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <Link href="/" className={styles.logo}>
-          <span className={styles.logoIcon}>T</span>
-          텔레<span className={styles.logoAccent}>폼</span>
+          <span className={styles.logoIcon}>H</span>
+          hl<span className={styles.logoAccent}>mobile</span>
         </Link>
         <nav className={styles.nav}>
           <Link href="#carriers" className={styles.navLink}>통신사</Link>
