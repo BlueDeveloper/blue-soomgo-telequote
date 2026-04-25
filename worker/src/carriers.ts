@@ -29,6 +29,9 @@ async function listCarriers(env: Env, request: Request): Promise<Response> {
 
   // 트리 구조 반환
   if (tree) {
+    // 대분류 3개가 항상 존재하도록 보장
+    await ensureDefaultMnos(env);
+
     const activeClause = activeOnly ? " WHERE is_active = 1" : "";
     const all = await env.DB.prepare(`SELECT * FROM carriers${activeClause} ORDER BY sort_order ASC`).all();
     const items = all.results as Record<string, unknown>[];
@@ -111,8 +114,15 @@ async function updateCarrier(env: Env, id: string, request: Request): Promise<Re
   return json({ ok: true });
 }
 
+const DEFAULT_MNOS = ["skt", "kt", "lgu"];
+
 async function deleteCarrier(env: Env, id: string): Promise<Response> {
-  // 대분류 삭제 시 하위 알뜰폰의 요금제도 삭제
+  // 대분류(MNO)는 삭제 불가
+  if (DEFAULT_MNOS.includes(id)) {
+    return json({ ok: false, error: "대분류 통신사는 삭제할 수 없습니다" }, 400);
+  }
+
+  // 알뜰폰 삭제 시 소속 요금제도 삭제
   const children = await env.DB.prepare("SELECT id FROM carriers WHERE parent_id = ?").bind(id).all();
   for (const child of children.results as { id: string }[]) {
     await env.DB.prepare("DELETE FROM plans WHERE carrier_id = ?").bind(child.id).run();
@@ -121,4 +131,21 @@ async function deleteCarrier(env: Env, id: string): Promise<Response> {
   await env.DB.prepare("DELETE FROM plans WHERE carrier_id = ?").bind(id).run();
   await env.DB.prepare("DELETE FROM carriers WHERE id = ?").bind(id).run();
   return json({ ok: true });
+}
+
+async function ensureDefaultMnos(env: Env): Promise<void> {
+  const defaults = [
+    { id: "skt", icon: "🔴", title: "SK텔레콤", description: "SKT 망", sort_order: 1 },
+    { id: "kt", icon: "🔵", title: "KT", description: "KT 망", sort_order: 2 },
+    { id: "lgu", icon: "🟣", title: "LG U+", description: "LGU+ 망", sort_order: 3 },
+  ];
+
+  for (const d of defaults) {
+    const exists = await env.DB.prepare("SELECT id FROM carriers WHERE id = ?").bind(d.id).first();
+    if (!exists) {
+      await env.DB.prepare(
+        "INSERT INTO carriers (id, icon, icon_style, title, description, forms, sort_order, parent_id) VALUES (?, ?, 'serviceIconBlue', ?, ?, '', ?, NULL)"
+      ).bind(d.id, d.icon, d.title, d.description, d.sort_order).run();
+    }
+  }
 }

@@ -99,7 +99,6 @@ export default function CarriersPage() {
       <main className={styles.main}>
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>통신사 관리</h1>
-          <button className={styles.addBtn} onClick={openCreateMno}>+ 대분류 추가</button>
         </div>
 
         {loading ? <div className={styles.empty}>불러오는 중...</div> : (
@@ -120,7 +119,6 @@ export default function CarriersPage() {
                   </div>
                   <div className={cs.mnoItemActions}>
                     <button className={cs.iconBtn} onClick={(e) => { e.stopPropagation(); openEdit(mno); }} title="수정">✏️</button>
-                    <button className={cs.iconBtn} onClick={(e) => { e.stopPropagation(); handleDelete(mno); }} title="삭제">🗑️</button>
                   </div>
                 </div>
               ))}
