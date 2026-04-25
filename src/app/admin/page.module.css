@@ -1,4 +1,4 @@
-/* Login */
+/* ===== Login ===== */
 .loginPage {
   min-height: 100vh;
   display: flex;
@@ -10,7 +10,7 @@
 
 .loginCard {
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
   background: white;
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
@@ -34,18 +34,8 @@
   margin: 0 auto 20px;
 }
 
-.loginTitle {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--text-0);
-  margin-bottom: 6px;
-}
-
-.loginDesc {
-  font-size: 14px;
-  color: var(--text-3);
-  margin-bottom: 28px;
-}
+.loginTitle { font-size: 22px; font-weight: 800; color: var(--text-0); margin-bottom: 6px; }
+.loginDesc { font-size: 14px; color: var(--text-3); margin-bottom: 28px; }
 
 .loginInput {
   width: 100%;
@@ -59,10 +49,7 @@
   font-family: inherit;
 }
 
-.loginInput:focus {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.06);
-}
+.loginInput:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.06); }
 
 .loginBtn {
   width: 100%;
@@ -78,20 +65,18 @@
 }
 
 .loginBtn:hover { background: var(--brand-dark); }
+.loginError { margin-top: 12px; font-size: 13px; color: var(--danger); }
 
-.loginError {
-  margin-top: 12px;
-  font-size: 13px;
-  color: var(--danger);
-}
+/* =============================================
+   PC: Dashboard Layout (sidebar + table)
+   ============================================= */
 
-/* ===== Admin Layout ===== */
 .adminLayout {
   display: flex;
   min-height: 100vh;
 }
 
-/* Desktop Sidebar */
+/* --- Sidebar --- */
 .sidebar {
   width: 220px;
   background: white;
@@ -128,12 +113,7 @@
   font-weight: 700;
 }
 
-.sidebarNav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 0 8px;
-}
+.sidebarNav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
 
 .sidebarLink {
   display: flex;
@@ -148,21 +128,10 @@
   text-decoration: none;
 }
 
-.sidebarLink:hover {
-  background: var(--surface-1);
-  color: var(--text-0);
-}
+.sidebarLink:hover { background: var(--surface-1); color: var(--text-0); }
+.sidebarLinkActive { background: var(--brand-light); color: var(--brand); font-weight: 600; }
 
-.sidebarLinkActive {
-  background: var(--brand-light);
-  color: var(--brand);
-  font-weight: 600;
-}
-
-.sidebarLogout {
-  margin-top: auto;
-  padding: 0 8px;
-}
+.sidebarLogout { margin-top: auto; padding: 0 8px; }
 
 .logoutBtn {
   width: 100%;
@@ -176,17 +145,12 @@
   transition: all 0.15s;
 }
 
-.logoutBtn:hover {
-  background: rgba(239, 68, 68, 0.06);
-  color: var(--danger);
-}
+.logoutBtn:hover { background: rgba(239, 68, 68, 0.06); color: var(--danger); }
 
-/* Mobile Bottom Tab */
-.bottomTab {
-  display: none;
-}
+/* --- Bottom Tab (hidden on PC) --- */
+.bottomTab { display: none; }
 
-/* Main Content */
+/* --- Main --- */
 .main {
   flex: 1;
   background: var(--surface-1);
@@ -194,7 +158,7 @@
   overflow-y: auto;
 }
 
-/* Page Header */
+/* --- Page Header --- */
 .pageHeader {
   display: flex;
   align-items: center;
@@ -203,11 +167,7 @@
   gap: 12px;
 }
 
-.pageTitle {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--text-0);
-}
+.pageTitle { font-size: 22px; font-weight: 800; color: var(--text-0); }
 
 .addBtn {
   padding: 10px 20px;
@@ -223,7 +183,7 @@
 
 .addBtn:hover { background: var(--brand-dark); }
 
-/* ===== Table ===== */
+/* --- Table (PC only) --- */
 .table {
   width: 100%;
   background: white;
@@ -257,10 +217,7 @@
 .table tr:last-child td { border-bottom: none; }
 .table tr:hover td { background: var(--surface-1); }
 
-.tableActions {
-  display: flex;
-  gap: 6px;
-}
+.tableActions { display: flex; gap: 6px; }
 
 .editBtn {
   padding: 6px 12px;
@@ -288,38 +245,30 @@
 
 .deleteBtn:hover { background: rgba(239, 68, 68, 0.08); color: var(--danger); }
 
-.plansLink {
-  color: var(--brand);
-  font-weight: 500;
-  font-size: 13px;
-}
-
+.plansLink { color: var(--brand); font-weight: 500; font-size: 13px; }
 .plansLink:hover { text-decoration: underline; }
 
-/* ===== Mobile Card List (replaces table on mobile) ===== */
-.cardList {
-  display: none;
-}
+/* --- Card List (hidden on PC, shown on Mobile) --- */
+.cardList { display: none; }
 
 .card {
   background: white;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 16px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
 .cardHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  padding: 16px;
 }
 
 .cardTitle {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 15px;
+  gap: 12px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-0);
 }
@@ -327,31 +276,21 @@
 .cardBadge {
   font-size: 11px;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
 }
 
-.cardBadgeActive {
-  background: #ECFDF5;
-  color: #059669;
-}
-
-.cardBadgeInactive {
-  background: #FEF2F2;
-  color: #DC2626;
-}
+.cardBadgeActive { background: #ECFDF5; color: #059669; }
+.cardBadgeInactive { background: #FEF2F2; color: #DC2626; }
 
 .cardBody {
+  padding: 0 16px 12px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 
-.cardField {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.cardField { display: flex; flex-direction: column; gap: 2px; }
 
 .cardFieldLabel {
   font-size: 11px;
@@ -361,49 +300,42 @@
   letter-spacing: 0.3px;
 }
 
-.cardFieldValue {
-  font-size: 13px;
-  color: var(--text-1);
-  font-weight: 500;
-}
+.cardFieldValue { font-size: 14px; color: var(--text-1); font-weight: 500; }
 
 .cardActions {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
   border-top: 1px solid var(--border-light);
 }
 
 .cardEditBtn {
   flex: 1;
-  padding: 10px;
-  background: var(--surface-1);
-  color: var(--text-1);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
+  padding: 14px;
+  color: var(--brand);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cardEditBtn:active { background: var(--brand-light); }
+
+.cardDeleteBtn {
+  padding: 14px 20px;
+  color: var(--text-3);
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   text-align: center;
   transition: all 0.15s;
+  border-left: 1px solid var(--border-light);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.cardEditBtn:hover { background: var(--brand-light); color: var(--brand); }
+.cardDeleteBtn:active { background: rgba(239, 68, 68, 0.06); color: var(--danger); }
 
-.cardDeleteBtn {
-  padding: 10px 16px;
-  background: var(--surface-1);
-  color: var(--text-3);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.cardDeleteBtn:hover { background: rgba(239, 68, 68, 0.06); color: var(--danger); }
-
-/* ===== Modal ===== */
+/* --- Modal (PC: centered dialog) --- */
 .overlay {
   position: fixed;
   inset: 0;
@@ -426,16 +358,8 @@
   overflow-y: auto;
 }
 
-.modalTitle {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-0);
-  margin-bottom: 24px;
-}
-
-.formGroup {
-  margin-bottom: 16px;
-}
+.modalTitle { font-size: 20px; font-weight: 800; color: var(--text-0); margin-bottom: 24px; }
+.formGroup { margin-bottom: 16px; }
 
 .formLabel {
   display: block;
@@ -470,17 +394,9 @@
   padding-right: 32px;
 }
 
-.formRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
+.formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.modalActions {
-  display: flex;
-  gap: 10px;
-  margin-top: 24px;
-}
+.modalActions { display: flex; gap: 10px; margin-top: 24px; }
 
 .cancelBtn {
   flex: 1;
@@ -509,19 +425,58 @@
 
 .saveBtn:hover { background: var(--brand-dark); }
 
-/* Empty */
-.empty {
-  text-align: center;
-  padding: 48px 20px;
-  color: var(--text-3);
-  font-size: 14px;
-}
+.empty { text-align: center; padding: 48px 20px; color: var(--text-3); font-size: 14px; }
 
-/* ===== Mobile Responsive ===== */
+/* =============================================
+   MOBILE: Native App Style
+   ============================================= */
 @media (max-width: 768px) {
-  /* Hide desktop sidebar, show bottom tab */
+  /* Hide PC elements */
   .sidebar { display: none; }
+  .table { display: none; }
 
+  /* Full-screen app feel */
+  .adminLayout {
+    flex-direction: column;
+  }
+
+  .main {
+    padding: 0;
+    background: var(--surface-1);
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    min-height: 100vh;
+  }
+
+  /* --- Mobile Header --- */
+  .pageHeader {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: white;
+    padding: 16px 20px;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pageTitle { font-size: 18px; }
+
+  .addBtn {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    right: 20px;
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    z-index: 60;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* --- Bottom Tab Bar --- */
   .bottomTab {
     display: flex;
     position: fixed;
@@ -531,9 +486,8 @@
     background: white;
     border-top: 1px solid var(--border);
     z-index: 100;
-    padding: 6px 8px;
-    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
-    gap: 4px;
+    padding: 4px 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .tabLink {
@@ -541,78 +495,127 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    justify-content: center;
+    gap: 3px;
     padding: 8px 4px;
-    border-radius: var(--radius-sm);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
     color: var(--text-3);
     text-decoration: none;
-    transition: all 0.15s;
     -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s;
   }
 
-  .tabLink:active { transform: scale(0.95); }
+  .tabLink:active { opacity: 0.7; }
 
   .tabLinkActive {
     color: var(--brand);
     font-weight: 700;
-    background: var(--brand-light);
   }
 
-  .tabIcon {
-    font-size: 20px;
-    line-height: 1;
-  }
+  .tabIcon { font-size: 22px; line-height: 1; }
+  .tabLabel { line-height: 1; }
 
-  .tabLabel {
-    line-height: 1;
-  }
-
-  /* Main padding */
-  .main {
-    padding: 16px;
-    padding-bottom: 80px;
-  }
-
-  .pageTitle { font-size: 18px; }
-  .addBtn { padding: 10px 16px; font-size: 13px; }
-
-  /* Hide table, show cards */
-  .table { display: none; }
-
+  /* --- Card List --- */
   .cardList {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0;
+    background: var(--surface-1);
+    padding: 12px 0;
   }
 
-  /* Modal fullscreen on mobile */
+  .card {
+    border-radius: 0;
+    border: none;
+    border-bottom: 8px solid var(--surface-1);
+  }
+
+  .cardHeader { padding: 16px 20px 8px; }
+
+  .cardTitle { gap: 12px; font-size: 16px; }
+
+  .cardBody {
+    padding: 0 20px 4px;
+    gap: 8px 20px;
+  }
+
+  .cardFieldValue { font-size: 14px; }
+
+  .cardActions {
+    margin: 0;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .cardEditBtn {
+    padding: 15px;
+    font-size: 15px;
+  }
+
+  .cardDeleteBtn {
+    padding: 15px 24px;
+    font-size: 15px;
+  }
+
+  /* --- Modal → Full Screen Bottom Sheet --- */
   .overlay {
     padding: 0;
     align-items: flex-end;
+    background: rgba(0, 0, 0, 0.5);
   }
 
   .modal {
     max-width: 100%;
-    max-height: 92vh;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    padding: 24px 20px;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    max-height: 95vh;
+    border-radius: 20px 20px 0 0;
+    padding: 8px 20px 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    animation: slideUp 0.3s ease-out;
   }
 
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--surface-4);
+    border-radius: 2px;
+    margin: 8px auto 20px;
+  }
+
+  .modalTitle { font-size: 18px; margin-bottom: 20px; }
+
   .formRow { grid-template-columns: 1fr; }
+
+  .formInput {
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: var(--radius-md);
+  }
 
   .modalActions {
     position: sticky;
     bottom: 0;
     background: white;
     padding: 16px 0 0;
-    margin-top: 16px;
+    margin-top: 20px;
   }
 
   .cancelBtn, .saveBtn {
-    padding: 14px;
-    font-size: 15px;
+    padding: 16px;
+    font-size: 16px;
+    border-radius: var(--radius-md);
   }
+}
+
+/* ===== Extra small (iPhone SE etc) ===== */
+@media (max-width: 380px) {
+  .cardBody { grid-template-columns: 1fr; }
+  .cardHeader { padding: 14px 16px 6px; }
+  .cardBody { padding: 0 16px 4px; }
 }
