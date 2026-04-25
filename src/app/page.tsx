@@ -1,65 +1,11 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
+import { fetchCarriers } from "@/lib/api";
+import type { Carrier } from "@/types";
 import styles from "./page.module.css";
-
-const carriers = [
-  {
-    icon: "🔴",
-    iconStyle: "serviceIconOrange",
-    title: "SKT",
-    desc: "SK텔레콤 신규/기변/번호이동",
-    forms: "가입신청서, 해지신청서",
-  },
-  {
-    icon: "🔵",
-    iconStyle: "serviceIconBlue",
-    title: "KT",
-    desc: "KT 신규/기변/번호이동",
-    forms: "가입신청서, 해지신청서",
-  },
-  {
-    icon: "🟣",
-    iconStyle: "serviceIconPurple",
-    title: "LG U+",
-    desc: "LG유플러스 신규/기변/번호이동",
-    forms: "가입신청서, 해지신청서",
-  },
-  {
-    icon: "🟢",
-    iconStyle: "serviceIconGreen",
-    title: "알뜰폰 (SKT망)",
-    desc: "SK 7mobile, 한국케이블 등",
-    forms: "통합 가입신청서",
-  },
-  {
-    icon: "🔵",
-    iconStyle: "serviceIconBlue",
-    title: "알뜰폰 (KT망)",
-    desc: "KT M모바일, 리브엠 등",
-    forms: "통합 가입신청서",
-  },
-  {
-    icon: "🟣",
-    iconStyle: "serviceIconPurple",
-    title: "알뜰폰 (LGU+망)",
-    desc: "U+알뜰모바일, 헬로모바일 등",
-    forms: "통합 가입신청서",
-  },
-  {
-    icon: "📋",
-    iconStyle: "serviceIconGreen",
-    title: "선불폰",
-    desc: "선불 유심 개통 신청서",
-    forms: "선불 가입신청서",
-  },
-  {
-    icon: "🏢",
-    iconStyle: "serviceIconOrange",
-    title: "법인/기업",
-    desc: "법인 명의 개통 신청서",
-    forms: "법인 가입신청서",
-  },
-];
 
 const steps = [
   { num: "1", title: "통신사 선택", desc: "원하는 통신사를 선택하세요" },
@@ -69,63 +15,31 @@ const steps = [
 ];
 
 const features = [
-  {
-    icon: "✅",
-    title: "모든 통신사 지원",
-    desc: "SKT, KT, LG U+ 3대 통신사와 모든 알뜰폰 통신사 신청서를 지원합니다.",
-  },
-  {
-    icon: "🆓",
-    title: "완전 무료",
-    desc: "회원가입도, 이용료도 없습니다. 신청서 작성부터 출력까지 100% 무료.",
-  },
-  {
-    icon: "⚡",
-    title: "1분 만에 완성",
-    desc: "복잡한 양식 걱정 없이, 안내에 따라 입력하면 자동으로 신청서가 완성됩니다.",
-  },
-  {
-    icon: "🖨️",
-    title: "즉시 출력 가능",
-    desc: "작성 완료 후 PDF로 다운로드하거나 바로 프린터로 출력할 수 있습니다.",
-  },
-  {
-    icon: "📱",
-    title: "모바일에서도 작성",
-    desc: "PC는 물론 스마트폰, 태블릿에서도 편리하게 신청서를 작성할 수 있습니다.",
-  },
-  {
-    icon: "🔒",
-    title: "개인정보 보호",
-    desc: "입력된 정보는 서버에 저장되지 않습니다. 출력 후 즉시 삭제됩니다.",
-  },
+  { icon: "✅", title: "모든 통신사 지원", desc: "SKT, KT, LG U+ 3대 통신사와 모든 알뜰폰 통신사 신청서를 지원합니다." },
+  { icon: "🆓", title: "완전 무료", desc: "회원가입도, 이용료도 없습니다. 신청서 작성부터 출력까지 100% 무료." },
+  { icon: "⚡", title: "1분 만에 완성", desc: "복잡한 양식 걱정 없이, 안내에 따라 입력하면 자동으로 신청서가 완성됩니다." },
+  { icon: "🖨️", title: "즉시 출력 가능", desc: "작성 완료 후 PDF로 다운로드하거나 바로 프린터로 출력할 수 있습니다." },
+  { icon: "📱", title: "모바일에서도 작성", desc: "PC는 물론 스마트폰, 태블릿에서도 편리하게 신청서를 작성할 수 있습니다." },
+  { icon: "🔒", title: "개인정보 보호", desc: "입력된 정보는 서버에 저장되지 않습니다. 출력 후 즉시 삭제됩니다." },
 ];
 
 const reviews = [
-  {
-    stars: 5,
-    text: "대리점에서 매번 신청서 손으로 쓰느라 힘들었는데, 이제 미리 작성해서 출력해 가니까 정말 편해요. 글씨 못 알아보겠다는 말도 안 듣고요.",
-    name: "김대리",
-    meta: "휴대폰 대리점 운영 · 2주 전",
-    avatar: "김",
-  },
-  {
-    stars: 5,
-    text: "알뜰폰 개통할 때 신청서 양식 찾느라 한참 걸렸는데, 여기서 통신사만 선택하면 바로 나와서 너무 좋아요. 부모님 폰도 여기서 했어요.",
-    name: "박지현",
-    meta: "번호이동 · 1주 전",
-    avatar: "박",
-  },
-  {
-    stars: 5,
-    text: "법인폰 20대 개통할 때 신청서 하나하나 쓸 생각에 막막했는데, 정보 한 번 입력하면 다 채워져서 나와요. 시간 엄청 절약됐습니다.",
-    name: "이과장",
-    meta: "법인 · 3일 전",
-    avatar: "이",
-  },
+  { stars: 5, text: "대리점에서 매번 신청서 손으로 쓰느라 힘들었는데, 이제 미리 작성해서 출력해 가니까 정말 편해요. 글씨 못 알아보겠다는 말도 안 듣고요.", name: "김대리", meta: "휴대폰 대리점 운영 · 2주 전", avatar: "김" },
+  { stars: 5, text: "알뜰폰 개통할 때 신청서 양식 찾느라 한참 걸렸는데, 여기서 통신사만 선택하면 바로 나와서 너무 좋아요. 부모님 폰도 여기서 했어요.", name: "박지현", meta: "번호이동 · 1주 전", avatar: "박" },
+  { stars: 5, text: "법인폰 20대 개통할 때 신청서 하나하나 쓸 생각에 막막했는데, 정보 한 번 입력하면 다 채워져서 나와요. 시간 엄청 절약됐습니다.", name: "이과장", meta: "법인 · 3일 전", avatar: "이" },
 ];
 
 export default function Home() {
+  const [carriers, setCarriers] = useState<Carrier[]>([]);
+  const [carriersLoading, setCarriersLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCarriers()
+      .then(setCarriers)
+      .catch(() => {})
+      .finally(() => setCarriersLoading(false));
+  }, []);
+
   return (
     <>
       <Header />
@@ -199,7 +113,7 @@ export default function Home() {
       <section className={styles.stats}>
         <div className={styles.statsInner}>
           <div className={styles.statCard}>
-            <div className={styles.statNumber}>30+</div>
+            <div className={styles.statNumber}>{carriers.length || "14"}+</div>
             <div className={styles.statLabel}>지원 통신사</div>
           </div>
           <div className={styles.statCard}>
@@ -226,20 +140,24 @@ export default function Home() {
             3대 통신사는 물론, 알뜰폰·선불폰·법인까지 모두 지원합니다.
           </p>
           <div className={styles.serviceGrid}>
-            {carriers.map((c) => (
-              <Link
-                key={c.title}
-                href={`/form?carrier=${encodeURIComponent(c.title)}`}
-                className={styles.serviceCard}
-              >
-                <div className={`${styles.serviceIcon} ${styles[c.iconStyle]}`}>
-                  {c.icon}
-                </div>
-                <h3>{c.title}</h3>
-                <p>{c.desc}</p>
-                <div className={styles.servicePrice}>{c.forms}</div>
-              </Link>
-            ))}
+            {carriersLoading
+              ? Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className={styles.serviceCard} style={{ opacity: 0.4, minHeight: 140 }} />
+                ))
+              : carriers.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/form?carrier=${encodeURIComponent(c.id)}`}
+                    className={styles.serviceCard}
+                  >
+                    <div className={`${styles.serviceIcon} ${styles[c.icon_style] || styles.serviceIconBlue}`}>
+                      {c.icon}
+                    </div>
+                    <h3>{c.title}</h3>
+                    <p>{c.description}</p>
+                    <div className={styles.servicePrice}>{c.forms}</div>
+                  </Link>
+                ))}
           </div>
         </div>
       </section>
@@ -285,7 +203,7 @@ export default function Home() {
       </section>
 
       {/* Reviews */}
-      <section className={styles.reviews} style={{ background: "var(--gray-50)" }}>
+      <section className={styles.reviews} style={{ background: "var(--surface-1)" }}>
         <div className={styles.reviewsInner}>
           <span className={styles.sectionTag}>이용 후기</span>
           <h2 className={styles.sectionTitle}>실제 이용 후기</h2>
@@ -318,9 +236,7 @@ export default function Home() {
       <section className={styles.ctaBanner}>
         <div className={styles.ctaBannerInner}>
           <h2>지금 바로 신청서를 작성해보세요</h2>
-          <p>
-            회원가입 없이, 완전 무료로 모든 통신사 신청서를 작성하고 출력하세요.
-          </p>
+          <p>회원가입 없이, 완전 무료로 모든 통신사 신청서를 작성하고 출력하세요.</p>
           <Link href="/form" className={styles.ctaBannerBtn}>
             신청서 작성하기 →
           </Link>
