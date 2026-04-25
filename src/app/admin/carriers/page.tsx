@@ -24,9 +24,9 @@ export default function CarriersPage() {
     setLoading(true);
     const data = await fetchCarrierTree(false);
     setTree(data);
-    if (!activeMno && data.length > 0) setActiveMno(data[0].id);
+    setActiveMno((prev) => prev || (data.length > 0 ? data[0].id : ""));
     setLoading(false);
-  }, [router, activeMno]);
+  }, [router]);
 
   useEffect(() => { load(); }, [load]);
 

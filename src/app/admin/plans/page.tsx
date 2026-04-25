@@ -29,10 +29,12 @@ function PlansContent() {
     if (!token) { router.push("/admin"); return; }
     const data = await fetchCarrierTree(false);
     setTree(data);
-    if (!selectedCarrier && data.length > 0 && data[0].children && data[0].children.length > 0) {
-      setSelectedCarrier(data[0].children[0].id);
-    }
-  }, [router, selectedCarrier]);
+    setSelectedCarrier((prev) => {
+      if (prev) return prev;
+      if (data.length > 0 && data[0].children && data[0].children.length > 0) return data[0].children[0].id;
+      return "";
+    });
+  }, [router]);
 
   const loadPlans = useCallback(async () => {
     if (!selectedCarrier) return;
