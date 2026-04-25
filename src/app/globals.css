@@ -117,7 +117,27 @@ input, select, textarea {
 ::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
-/* Animations */
+/* ===== Page transition ===== */
+body {
+  animation: pageIn 0.4s ease-out;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===== Section reveal on scroll ===== */
+section, footer, main {
+  animation: sectionIn 0.5s ease-out both;
+}
+
+@keyframes sectionIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Reusable animations ===== */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -143,11 +163,6 @@ input, select, textarea {
 .fadeIn {
   animation: fadeIn 0.35s ease-out both;
 }
-
-.stagger1 { animation-delay: 0.05s; }
-.stagger2 { animation-delay: 0.1s; }
-.stagger3 { animation-delay: 0.15s; }
-.stagger4 { animation-delay: 0.2s; }
 
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.3); }

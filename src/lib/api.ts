@@ -3,6 +3,10 @@ import type { Carrier, Plan, Notice, Inquiry, ApiResponse } from "@/types";
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "https://hlmobile-api.raon-foodtruck.workers.dev";
 
+// 간단 메모리 캐시 (GET 요청 30초 TTL)
+const cache = new Map<string, { data: unknown; ts: number }>();
+const CACHE_TTL = 30_000;
+
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
   return sessionStorage.getItem("admin_token");
@@ -13,6 +17,17 @@ async function request<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const token = getToken();
+  const method = options.method || "GET";
+
+  // GET 캐시 확인
+  const cacheKey = `${path}`;
+  if (method === "GET") {
+    const cached = cache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < CACHE_TTL) {
+      return cached.data as ApiResponse<T>;
+    }
+  }
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
@@ -20,7 +35,19 @@ async function request<T>(
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  return res.json();
+  const json = await res.json() as ApiResponse<T>;
+
+  // GET 결과 캐시 저장
+  if (method === "GET" && json.ok) {
+    cache.set(cacheKey, { data: json, ts: Date.now() });
+  }
+
+  // 쓰기 작업 시 관련 캐시 무효화
+  if (method !== "GET") {
+    cache.clear();
+  }
+
+  return json;
 }
 
 // Auth
