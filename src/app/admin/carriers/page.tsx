@@ -49,6 +49,10 @@ export default function CarriersPage() {
   };
 
   const handleSave = async () => {
+    if (!form.title.trim()) { alert("이름을 입력해주세요."); return; }
+    if (modal !== "edit" && !form.id.trim()) { alert("ID를 입력해주세요."); return; }
+    if ((modal === "create-mvno" || (modal === "edit" && editing?.parent_id)) && !form.paymentType) { alert("결제 방식을 선택해주세요."); return; }
+
     if (modal === "create-mno") {
       const res = await createCarrier({ ...form, parentId: null } as unknown as Partial<Carrier>);
       if (!res.ok) { alert(res.error); return; }

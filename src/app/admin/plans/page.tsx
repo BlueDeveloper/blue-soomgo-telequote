@@ -21,7 +21,7 @@ function PlansContent() {
   const [form, setForm] = useState({
     name: "", monthly: 0, base_fee: 0, discount: 0,
     voice: "", sms: "", data: "", qos: "-",
-    type: "postpaid" as "postpaid" | "prepaid", sort_order: 0,
+    type: "" as string, sort_order: 0,
   });
 
   const loadCarriers = useCallback(async () => {
@@ -50,7 +50,7 @@ function PlansContent() {
   const carrierName = tree.flatMap(m => m.children || []).find((c) => c.id === selectedCarrier)?.title || selectedCarrier;
 
   const openCreate = () => {
-    setForm({ name: "", monthly: 0, base_fee: 0, discount: 0, voice: "", sms: "", data: "", qos: "-", type: "postpaid", sort_order: plans.length + 1 });
+    setForm({ name: "", monthly: 0, base_fee: 0, discount: 0, voice: "", sms: "", data: "", qos: "-", type: "", sort_order: plans.length + 1 });
     setEditing(null);
     setModal("create");
   };
@@ -62,11 +62,18 @@ function PlansContent() {
   };
 
   const handleSave = async () => {
+    if (!form.name.trim()) { alert("요금제명을 입력해주세요."); return; }
+    if (!form.monthly) { alert("월납부금액을 입력해주세요."); return; }
+    if (!form.type) { alert("유형을 선택해주세요."); return; }
+    if (!form.voice.trim()) { alert("음성을 입력해주세요."); return; }
+    if (!form.sms.trim()) { alert("문자를 입력해주세요."); return; }
+    if (!form.data.trim()) { alert("데이터를 입력해주세요."); return; }
+
     if (modal === "create") {
-      const res = await createPlan({ carrierId: selectedCarrier, ...form });
+      const res = await createPlan({ carrierId: selectedCarrier, ...form, type: form.type as "postpaid" | "prepaid" });
       if (!res.ok) { alert(res.error); return; }
     } else if (modal === "edit" && editing) {
-      await updatePlan(editing.id, form);
+      await updatePlan(editing.id, { ...form, type: form.type as "postpaid" | "prepaid" });
     }
     setModal(null);
     loadPlans();
@@ -234,7 +241,7 @@ function PlansContent() {
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>유형</label>
-                  <select className={styles.formSelect} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as "postpaid" | "prepaid" })}>
+                  <select className={styles.formSelect} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
                     <option value="" disabled>선택하세요</option>
                     <option value="postpaid">후불</option>
                     <option value="prepaid">선불</option>

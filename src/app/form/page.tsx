@@ -92,7 +92,18 @@ function FormContent() {
   };
 
   const handleNext = () => {
-    if (!canProceed()) return;
+    switch (step) {
+      case 1: if (!selectedMno) { alert("통신망을 선택해주세요."); return; } break;
+      case 2: if (!selectedCarrier) { alert("알뜰폰 통신사를 선택해주세요."); return; } break;
+      case 3: if (!selectedPlan) { alert("요금제를 선택해주세요."); return; } break;
+      case 4:
+        if (!formData.subscriberName.trim()) { alert("가입자명을 입력해주세요."); return; }
+        if (!formData.contactNumber.trim()) { alert("개통번호 연락번호를 입력해주세요."); return; }
+        if (!formData.birthDate.trim()) { alert("생년월일을 입력해주세요."); return; }
+        if (!formData.customerType) { alert("고객유형을 선택해주세요."); return; }
+        if (!formData.activationType) { alert("개통구분을 선택해주세요."); return; }
+        break;
+    }
     if (step === TOTAL_STEPS) { setSubmitted(true); return; }
     setStep(step + 1);
   };

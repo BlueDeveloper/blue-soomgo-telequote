@@ -11,7 +11,9 @@ export default function InquiryPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.title || !form.content) { alert("이름, 제목, 내용은 필수입니다."); return; }
+    if (!form.name.trim()) { alert("이름을 입력해주세요."); return; }
+    if (!form.title.trim()) { alert("제목을 입력해주세요."); return; }
+    if (!form.content.trim()) { alert("내용을 입력해주세요."); return; }
     setLoading(true);
     const res = await createInquiry(form);
     setLoading(false);

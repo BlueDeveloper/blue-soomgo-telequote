@@ -30,6 +30,8 @@ export default function AdminNoticesPage() {
   const openEdit = (n: Notice) => { setForm({ title: n.title, content: n.content, isPinned: !!n.is_pinned }); setEditing(n); setModal("edit"); };
 
   const handleSave = async () => {
+    if (!form.title.trim()) { alert("제목을 입력해주세요."); return; }
+    if (!form.content.trim()) { alert("내용을 입력해주세요."); return; }
     if (modal === "create") {
       const res = await createNotice(form);
       if (!res.ok) { alert(res.error); return; }

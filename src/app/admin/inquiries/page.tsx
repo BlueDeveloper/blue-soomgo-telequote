@@ -29,6 +29,7 @@ export default function AdminInquiriesPage() {
 
   const handleReply = async () => {
     if (!modal) return;
+    if (!reply.trim()) { alert("답변 내용을 입력해주세요."); return; }
     await replyInquiry(modal.id, reply);
     setModal(null);
     load();
