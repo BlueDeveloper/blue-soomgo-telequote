@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  background: var(--surface-0);
+  background: var(--surface-1);
   padding-top: var(--header-height);
 }
 
@@ -10,16 +10,17 @@
   padding: 32px 24px 120px;
 }
 
-/* ===== Progress - pill style ===== */
+/* Progress - pill */
 .progress {
   display: flex;
   align-items: center;
   gap: 0;
   margin-bottom: 32px;
-  background: var(--surface-1);
+  background: white;
   border-radius: var(--radius-full);
   padding: 4px;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
 }
 
 .progressStep {
@@ -37,7 +38,7 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--surface-3);
+  background: var(--surface-2);
   color: var(--text-3);
   font-size: 12px;
   font-weight: 700;
@@ -50,14 +51,13 @@
 }
 
 .progressDotActive {
-  background: var(--teal);
-  color: var(--surface-0);
-  box-shadow: 0 0 12px rgba(11, 223, 178, 0.3);
+  background: var(--brand);
+  color: white;
 }
 
 .progressDotDone {
-  background: var(--teal);
-  color: var(--surface-0);
+  background: var(--brand);
+  color: white;
 }
 
 .progressLabel {
@@ -65,28 +65,22 @@
   color: var(--text-3);
   font-weight: 600;
   white-space: nowrap;
-  transition: color 0.3s;
 }
 
 .progressLabelActive {
-  color: var(--teal);
+  color: var(--brand);
 }
 
-.progressLine {
-  display: none;
-}
+.progressLine { display: none; }
+.progressLineDone { display: none; }
 
-.progressLineDone {
-  display: none;
-}
-
-/* ===== Form Card ===== */
+/* Form Card */
 .formCard {
-  background: var(--surface-1);
+  background: white;
   border-radius: var(--radius-xl);
   padding: 36px 32px;
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   animation: fadeUp 0.5s ease-out;
 }
 
@@ -104,7 +98,7 @@
   margin-bottom: 28px;
 }
 
-/* ===== Carrier Cards ===== */
+/* Carrier Cards */
 .carrierGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -114,13 +108,12 @@
 
 .carrierCard {
   padding: 18px 14px;
-  border: 2px solid var(--surface-3);
+  border: 2px solid var(--border);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.2s;
   text-align: center;
-  background: var(--surface-2);
-  /* Mobile: big touch targets */
+  background: white;
   min-height: 90px;
   display: flex;
   flex-direction: column;
@@ -129,34 +122,20 @@
 }
 
 .carrierCard:hover {
-  border-color: var(--teal);
-  background: var(--teal-subtle);
+  border-color: var(--brand);
+  background: var(--brand-light);
 }
 
 .carrierCardActive {
-  border-color: var(--teal);
-  background: var(--teal-subtle);
-  box-shadow: 0 0 16px rgba(11, 223, 178, 0.12);
+  border-color: var(--brand);
+  background: var(--brand-light);
 }
 
-.carrierCardIcon {
-  font-size: 28px;
-  margin-bottom: 6px;
-}
+.carrierCardIcon { font-size: 28px; margin-bottom: 6px; }
+.carrierCardTitle { font-size: 14px; font-weight: 700; color: var(--text-0); }
+.carrierCardDesc { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-.carrierCardTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-0);
-}
-
-.carrierCardDesc {
-  font-size: 11px;
-  color: var(--text-3);
-  margin-top: 2px;
-}
-
-/* ===== Form Type ===== */
+/* Form Type */
 .formTypeGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -166,11 +145,11 @@
 
 .formTypeCard {
   padding: 16px 14px;
-  border: 2px solid var(--surface-3);
+  border: 2px solid var(--border);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.25s;
-  background: var(--surface-2);
+  transition: all 0.2s;
+  background: white;
   min-height: 70px;
   display: flex;
   flex-direction: column;
@@ -178,31 +157,20 @@
 }
 
 .formTypeCard:hover {
-  border-color: var(--teal);
-  background: var(--teal-subtle);
+  border-color: var(--brand);
+  background: var(--brand-light);
 }
 
 .formTypeCardActive {
-  border-color: var(--teal);
-  background: var(--teal-subtle);
+  border-color: var(--brand);
+  background: var(--brand-light);
 }
 
-.formTypeTitle {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-0);
-  margin-bottom: 2px;
-}
+.formTypeTitle { font-size: 15px; font-weight: 700; color: var(--text-0); margin-bottom: 2px; }
+.formTypeDesc { font-size: 12px; color: var(--text-3); }
 
-.formTypeDesc {
-  font-size: 12px;
-  color: var(--text-3);
-}
-
-/* ===== Plan Section ===== */
-.planSection {
-  margin-bottom: 24px;
-}
+/* Plan Section */
+.planSection { margin-bottom: 24px; }
 
 .planSectionTitle {
   font-size: 13px;
@@ -222,7 +190,6 @@
   background: var(--surface-2);
   border-radius: var(--radius-full);
   padding: 3px;
-  border: 1px solid var(--glass-border);
 }
 
 .toggleBtn {
@@ -234,13 +201,13 @@
   color: var(--text-3);
   background: transparent;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.2s;
 }
 
 .toggleBtnActive {
-  background: var(--teal);
-  color: var(--surface-0);
-  box-shadow: 0 0 12px rgba(11, 223, 178, 0.2);
+  background: var(--brand);
+  color: white;
+  box-shadow: var(--shadow-sm);
 }
 
 /* Filters */
@@ -267,13 +234,13 @@
 
 .filterSelect {
   padding: 10px 12px;
-  border: 1px solid var(--surface-4);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 14px;
   color: var(--text-1);
-  background: var(--surface-2);
+  background: white;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A6A80' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   padding-right: 28px;
@@ -281,28 +248,21 @@
   font-family: inherit;
 }
 
-.filterSelect:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 2px rgba(11, 223, 178, 0.1);
-}
+.filterSelect:focus { border-color: var(--brand); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08); }
 
 .filterSearch {
   padding: 10px 12px;
-  border: 1px solid var(--surface-4);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 14px;
   color: var(--text-1);
-  background: var(--surface-2);
+  background: white;
   outline: none;
   font-family: inherit;
 }
 
 .filterSearch::placeholder { color: var(--text-3); }
-
-.filterSearch:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 2px rgba(11, 223, 178, 0.1);
-}
+.filterSearch:focus { border-color: var(--brand); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08); }
 
 /* Selected Plan */
 .selectedPlan {
@@ -310,63 +270,28 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: var(--teal-subtle);
-  border: 1px solid rgba(11, 223, 178, 0.2);
+  background: var(--brand-light);
+  border: 1px solid rgba(37, 99, 235, 0.2);
   border-radius: var(--radius-md);
   margin-bottom: 16px;
 }
 
-.selectedPlanLabel {
-  font-size: 11px;
-  color: var(--teal);
-  font-weight: 700;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+.selectedPlanLabel { font-size: 11px; color: var(--brand); font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.5px; }
+.selectedPlanName { font-size: 15px; font-weight: 700; color: var(--text-0); }
+.selectedPlanPrice { margin-left: auto; font-size: 14px; font-weight: 700; color: var(--brand); font-family: var(--font-mono); }
+.selectedPlanRemove { font-size: 16px; color: var(--text-3); cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; }
+.selectedPlanRemove:hover { color: var(--danger); background: rgba(239, 68, 68, 0.06); }
 
-.selectedPlanName {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-0);
-}
-
-.selectedPlanPrice {
-  margin-left: auto;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--teal);
-  font-family: var(--font-mono);
-}
-
-.selectedPlanRemove {
-  font-size: 16px;
-  color: var(--text-3);
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.selectedPlanRemove:hover {
-  color: var(--danger);
-  background: rgba(255, 92, 92, 0.1);
-}
-
-/* Plan Table - Desktop */
+/* Plan Table */
 .planTableWrapper {
   overflow-x: auto;
   margin-bottom: 12px;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: var(--surface-2);
+  background: white;
 }
 
-.planTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
+.planTable { width: 100%; border-collapse: collapse; font-size: 13px; }
 
 .planTable thead th {
   padding: 12px 10px;
@@ -374,77 +299,41 @@
   font-size: 11px;
   font-weight: 700;
   color: var(--text-3);
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--border);
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  background: var(--surface-1);
 }
 
 .planTable thead th:hover { color: var(--text-1); }
 
-.sortIcon {
-  font-size: 10px;
-  margin-left: 2px;
-  color: var(--text-3);
-  opacity: 0.5;
-}
+.sortIcon { font-size: 10px; margin-left: 2px; color: var(--text-3); opacity: 0.5; }
 
 .planTable tbody tr {
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--border-light);
   cursor: pointer;
   transition: background 0.15s;
 }
 
-.planTable tbody tr:last-child {
-  border-bottom: none;
-}
+.planTable tbody tr:last-child { border-bottom: none; }
+.planTable tbody tr:hover { background: var(--brand-subtle); }
 
-.planTable tbody tr:hover {
-  background: rgba(11, 223, 178, 0.03);
-}
+.planRowActive { background: var(--brand-light) !important; }
 
-.planRowActive {
-  background: var(--teal-subtle) !important;
-}
-
-.planTable td {
-  padding: 14px 10px;
-  color: var(--text-2);
-  white-space: nowrap;
-}
-
-.planName {
-  color: var(--secondary);
-  font-weight: 600;
-  cursor: pointer;
-}
-
+.planTable td { padding: 14px 10px; color: var(--text-1); white-space: nowrap; }
+.planName { color: var(--brand); font-weight: 600; cursor: pointer; }
 .planName:hover { text-decoration: underline; }
+.planDiscount { color: var(--danger); font-weight: 700; font-family: var(--font-mono); }
 
-.planDiscount {
-  color: var(--danger);
-  font-weight: 700;
-  font-family: var(--font-mono);
-}
+.noPlans { text-align: center; padding: 48px 20px; color: var(--text-3); font-size: 14px; }
 
-.noPlans {
-  text-align: center;
-  padding: 48px 20px;
-  color: var(--text-3);
-  font-size: 14px;
-}
-
-/* ===== Form Fields ===== */
+/* Form Fields */
 .fieldGroup { margin-bottom: 18px; }
-
-.fieldRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
+.fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 .fieldLabel {
   display: block;
@@ -457,89 +346,68 @@
   letter-spacing: 0.5px;
 }
 
-.fieldRequired {
-  color: var(--danger);
-  margin-left: 2px;
-}
+.fieldRequired { color: var(--danger); margin-left: 2px; }
 
 .input {
   width: 100%;
   padding: 14px 16px;
-  border: 1px solid var(--surface-4);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 15px;
   color: var(--text-0);
-  background: var(--surface-2);
-  transition: all 0.25s;
+  background: white;
+  transition: all 0.2s;
   outline: none;
   font-family: inherit;
-  /* Mobile: large touch target */
   min-height: 50px;
 }
 
-.input:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(11, 223, 178, 0.08);
-}
-
+.input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.06); }
 .input::placeholder { color: var(--text-3); }
 
 .select {
   composes: input;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235A6A80' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
   padding-right: 40px;
 }
 
-.textarea {
-  composes: input;
-  min-height: 100px;
-  resize: vertical;
-}
+.textarea { composes: input; min-height: 100px; resize: vertical; }
 
-/* ===== Buttons — sticky bottom on mobile ===== */
-.actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 28px;
-}
+/* Buttons */
+.actions { display: flex; gap: 10px; margin-top: 28px; }
 
 .btnBack {
   flex: 1;
   padding: 16px;
-  border: 1px solid var(--surface-4);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 15px;
   font-weight: 600;
   color: var(--text-2);
-  background: var(--surface-2);
+  background: white;
   transition: all 0.2s;
   min-height: 54px;
 }
 
-.btnBack:hover {
-  background: var(--surface-3);
-  color: var(--text-0);
-}
+.btnBack:hover { background: var(--surface-1); color: var(--text-0); }
 
 .btnNext {
   flex: 2;
   padding: 16px;
-  background: linear-gradient(135deg, var(--teal) 0%, #06B593 100%);
-  color: var(--surface-0);
+  background: var(--brand);
+  color: white;
   border-radius: var(--radius-md);
   font-size: 15px;
   font-weight: 700;
-  transition: all 0.25s;
+  transition: all 0.2s;
   min-height: 54px;
-  box-shadow: 0 0 20px rgba(11, 223, 178, 0.15);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
-.btnNext:hover {
-  box-shadow: 0 0 30px rgba(11, 223, 178, 0.25);
-}
+.btnNext:hover { background: var(--brand-dark); box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25); }
 
 .btnNextDisabled {
   background: var(--surface-3) !important;
@@ -548,38 +416,30 @@
   box-shadow: none !important;
 }
 
-.btnNextDisabled:hover {
-  box-shadow: none !important;
-}
+.btnNextDisabled:hover { box-shadow: none !important; }
 
 .btnSubmit {
   flex: 1;
   padding: 16px;
-  background: linear-gradient(135deg, var(--teal) 0%, #06B593 100%);
-  color: var(--surface-0);
+  background: var(--brand);
+  color: white;
   border-radius: var(--radius-md);
   font-size: 16px;
   font-weight: 700;
-  transition: all 0.25s;
+  transition: all 0.2s;
   min-height: 54px;
-  box-shadow: 0 0 20px rgba(11, 223, 178, 0.15);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
-.btnSubmit:hover {
-  box-shadow: 0 0 30px rgba(11, 223, 178, 0.3);
-}
+.btnSubmit:hover { background: var(--brand-dark); }
 
-/* ===== Complete ===== */
-.complete {
-  text-align: center;
-  padding: 16px 0;
-}
+/* Complete */
+.complete { text-align: center; padding: 16px 0; }
 
 .completeIcon {
   width: 72px;
   height: 72px;
-  background: var(--teal-subtle);
-  border: 1px solid rgba(11, 223, 178, 0.15);
+  background: var(--brand-light);
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -589,138 +449,71 @@
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
-.complete h2 {
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--text-0);
-  margin-bottom: 10px;
-}
-
-.complete p {
-  font-size: 14px;
-  color: var(--text-3);
-  line-height: 1.7;
-  margin-bottom: 6px;
-}
+.complete h2 { font-size: 22px; font-weight: 900; color: var(--text-0); margin-bottom: 10px; }
+.complete p { font-size: 14px; color: var(--text-3); line-height: 1.7; margin-bottom: 6px; }
 
 .completeInfo {
   margin-top: 28px;
-  padding: 0;
-  background: var(--surface-2);
+  background: var(--surface-1);
   border-radius: var(--radius-md);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
   text-align: left;
   overflow: hidden;
 }
 
-.completeInfoRow {
-  display: flex;
-  justify-content: space-between;
-  padding: 14px 18px;
-  font-size: 14px;
-}
+.completeInfoRow { display: flex; justify-content: space-between; padding: 14px 18px; font-size: 14px; }
+.completeInfoRow + .completeInfoRow { border-top: 1px solid var(--border); }
+.completeInfoLabel { color: var(--text-3); font-size: 13px; }
+.completeInfoValue { color: var(--text-0); font-weight: 600; }
 
-.completeInfoRow + .completeInfoRow {
-  border-top: 1px solid var(--glass-border);
-}
-
-.completeInfoLabel {
-  color: var(--text-3);
-  font-size: 13px;
-}
-
-.completeInfoValue {
-  color: var(--text-0);
-  font-weight: 600;
-}
-
-.completeActions {
-  margin-top: 28px;
-  display: flex;
-  gap: 10px;
-}
+.completeActions { margin-top: 28px; display: flex; gap: 10px; }
 
 .btnHome {
   flex: 1;
   padding: 16px;
-  border: 1px solid var(--surface-4);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 15px;
   font-weight: 600;
   color: var(--text-2);
-  background: var(--surface-2);
+  background: white;
   text-align: center;
   transition: all 0.2s;
   min-height: 54px;
 }
 
-.btnHome:hover {
-  background: var(--surface-3);
-}
+.btnHome:hover { background: var(--surface-1); }
 
 .btnPrint {
   flex: 1;
   padding: 16px;
-  background: linear-gradient(135deg, var(--teal) 0%, #06B593 100%);
-  color: var(--surface-0);
+  background: var(--brand);
+  color: white;
   border-radius: var(--radius-md);
   font-size: 15px;
   font-weight: 700;
   text-align: center;
-  transition: all 0.25s;
+  transition: all 0.2s;
   cursor: pointer;
   min-height: 54px;
-  box-shadow: 0 0 20px rgba(11, 223, 178, 0.15);
 }
 
-.btnPrint:hover {
-  box-shadow: 0 0 30px rgba(11, 223, 178, 0.3);
-}
+.btnPrint:hover { background: var(--brand-dark); }
 
-/* ===== MOBILE ===== */
+/* Mobile */
 @media (max-width: 768px) {
-  .container {
-    padding: 20px 16px 140px;
-  }
-
-  .formCard {
-    padding: 24px 18px;
-    border-radius: var(--radius-lg);
-  }
-
-  .formTitle {
-    font-size: 20px;
-  }
-
-  .carrierGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
-  .carrierCard {
-    min-height: 80px;
-    padding: 14px 8px;
-  }
-
+  .container { padding: 20px 16px 140px; }
+  .formCard { padding: 24px 18px; border-radius: var(--radius-lg); }
+  .formTitle { font-size: 20px; }
+  .carrierGrid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .carrierCard { min-height: 80px; padding: 14px 8px; }
   .carrierCardIcon { font-size: 24px; }
   .carrierCardTitle { font-size: 13px; }
   .carrierCardDesc { font-size: 10px; }
+  .formTypeGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .filterRow { flex-direction: column; gap: 8px; }
+  .fieldRow { grid-template-columns: 1fr; }
 
-  .formTypeGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .filterRow {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .fieldRow {
-    grid-template-columns: 1fr;
-  }
-
-  /* Sticky bottom action bar */
   .actions {
     position: fixed;
     bottom: 0;
@@ -728,9 +521,9 @@
     right: 0;
     padding: 12px 16px;
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    background: rgba(10, 14, 20, 0.92);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(20px);
-    border-top: 1px solid var(--glass-border);
+    border-top: 1px solid var(--border);
     margin-top: 0;
     z-index: 50;
   }
@@ -742,55 +535,33 @@
     right: 0;
     padding: 12px 16px;
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    background: rgba(10, 14, 20, 0.92);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(20px);
-    border-top: 1px solid var(--glass-border);
+    border-top: 1px solid var(--border);
     margin-top: 0;
     z-index: 50;
   }
 
-  /* Plan table → card layout on mobile */
-  .planTableWrapper {
-    border: none;
-    background: transparent;
-  }
-
-  .planTable {
-    display: none;
-  }
+  .planTableWrapper { border: none; background: transparent; }
+  .planTable { display: none; }
 }
 
 @media (max-width: 480px) {
-  .carrierGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-  }
-
-  .progressLabel {
-    display: none;
-  }
-
-  .progressStep {
-    padding: 8px 4px;
-  }
+  .carrierGrid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .progressLabel { display: none; }
+  .progressStep { padding: 8px 4px; }
 }
 
-/* Plan cards for mobile (shown via JS) */
-.planCardList {
-  display: none;
-}
+/* Plan cards for mobile */
+.planCardList { display: none; }
 
 @media (max-width: 768px) {
-  .planCardList {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  .planCardList { display: flex; flex-direction: column; gap: 10px; }
 }
 
 .planCard {
-  background: var(--surface-2);
-  border: 1px solid var(--glass-border);
+  background: white;
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 16px;
   cursor: pointer;
@@ -798,55 +569,13 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.planCard:active {
-  transform: scale(0.98);
-}
+.planCard:active { transform: scale(0.98); }
+.planCardActive { border-color: var(--brand); background: var(--brand-light); }
 
-.planCardActive {
-  border-color: var(--teal);
-  background: var(--teal-subtle);
-}
-
-.planCardName {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-0);
-  margin-bottom: 10px;
-}
-
-.planCardGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 16px;
-}
-
-.planCardItem {
-  display: flex;
-  flex-direction: column;
-}
-
-.planCardItemLabel {
-  font-size: 10px;
-  color: var(--text-3);
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.planCardItemValue {
-  font-size: 13px;
-  color: var(--text-1);
-  font-weight: 500;
-}
-
-.planCardPrice {
-  color: var(--teal);
-  font-family: var(--font-mono);
-  font-weight: 700;
-}
-
-.planCardDiscount {
-  color: var(--danger);
-  font-family: var(--font-mono);
-  font-weight: 700;
-}
+.planCardName { font-size: 15px; font-weight: 700; color: var(--text-0); margin-bottom: 10px; }
+.planCardGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+.planCardItem { display: flex; flex-direction: column; }
+.planCardItemLabel { font-size: 10px; color: var(--text-3); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.5px; }
+.planCardItemValue { font-size: 13px; color: var(--text-1); font-weight: 500; }
+.planCardPrice { color: var(--brand); font-family: var(--font-mono); font-weight: 700; }
+.planCardDiscount { color: var(--danger); font-family: var(--font-mono); font-weight: 700; }
