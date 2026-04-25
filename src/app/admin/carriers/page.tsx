@@ -117,7 +117,7 @@ export default function CarriersPage() {
         {loading ? (
           <div className={styles.empty}>불러오는 중...</div>
         ) : (
-          <div className={styles.cardList} style={{ display: "flex" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {tree.map((mno) => (
               <div key={mno.id} className={styles.card} style={{ border: expandedMno === mno.id ? "2px solid var(--brand)" : undefined }}>
                 {/* MNO Header */}
