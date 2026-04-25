@@ -290,6 +290,61 @@
   word-break: keep-all;
 }
 
+/* MNO Tabs */
+.mnoTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.mnoTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mnoTab:hover {
+  border-color: var(--brand);
+  color: var(--text-0);
+}
+
+.mnoTabActive {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: white;
+  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.2);
+}
+
+.mnoTabIcon {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+}
+
+.mnoTabCount {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.06);
+  font-family: var(--font-mono);
+}
+
+.mnoTabActive .mnoTabCount {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
 .sectionDesc {
   font-size: 16px;
   color: var(--text-2);
@@ -582,6 +637,142 @@
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
 }
 
+/* ===== Info Section (공지 + 문의) ===== */
+.infoSection {
+  padding: 80px 24px;
+  background: var(--surface-1);
+}
+
+.infoInner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+.infoCard {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.infoCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.infoCardTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-0);
+  margin: 0;
+}
+
+.infoCardMore {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand);
+}
+
+.infoCardMore:hover { text-decoration: underline; }
+
+/* Notice List */
+.noticeList {
+  display: flex;
+  flex-direction: column;
+}
+
+.noticeItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.15s;
+  gap: 12px;
+}
+
+.noticeItem:last-child { border-bottom: none; }
+.noticeItem:hover { background: #FAFBFD; }
+
+.noticeItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.noticePinBadge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--brand-light);
+  color: var(--brand);
+  flex-shrink: 0;
+}
+
+.noticeItemTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noticeItemDate {
+  font-size: 12px;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+.noticeEmpty {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 14px;
+}
+
+/* Inquiry Box */
+.inquiryBox {
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.inquiryDesc {
+  font-size: 15px;
+  color: var(--text-2);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.inquiryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 32px;
+  background: var(--brand);
+  color: white;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+.inquiryBtn:hover {
+  background: var(--brand-dark);
+  transform: translateY(-1px);
+}
+
 /* ===== Footer ===== */
 .footer {
   padding: 56px 24px 36px;
@@ -696,6 +887,13 @@
   .reviewGrid { grid-template-columns: 1fr; }
   .footerInner { flex-direction: column; }
   .footerLinks { gap: 32px; }
+
+  .mnoTabs { gap: 6px; }
+  .mnoTab { padding: 10px 16px; font-size: 14px; }
+
+  .infoSection { padding: 48px 20px; }
+  .infoInner { grid-template-columns: 1fr; }
+  .inquiryBox { padding: 24px 20px; }
 }
 
 @media (max-width: 480px) {

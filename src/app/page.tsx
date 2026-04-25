@@ -3,20 +3,28 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
-import { fetchCarrierTree } from "@/lib/api";
-import type { Carrier } from "@/types";
+import { fetchCarrierTree, fetchNotices } from "@/lib/api";
+import type { Carrier, Notice } from "@/types";
 import styles from "./page.module.css";
 
 export default function Home() {
   const [tree, setTree] = useState<Carrier[]>([]);
   const [carriersLoading, setCarriersLoading] = useState(true);
+  const [activeMno, setActiveMno] = useState("");
+  const [notices, setNotices] = useState<Notice[]>([]);
 
   useEffect(() => {
     fetchCarrierTree()
-      .then(setTree)
+      .then((data) => { setTree(data); if (data.length > 0) setActiveMno(data[0].id); })
       .catch(() => {})
       .finally(() => setCarriersLoading(false));
+    fetchNotices().then((data) => setNotices(data.slice(0, 5))).catch(() => {});
   }, []);
+
+  const activeMnoData = tree.find((m) => m.id === activeMno);
+  const mvnoList = activeMnoData?.children || [];
+
+  const isImg = (s: string) => s && (s.startsWith("http") || s.startsWith("/"));
 
   return (
     <>
@@ -71,67 +79,105 @@ export default function Home() {
                 </div>
                 <div className={styles.quoteRow}>
                   <span className={styles.quoteLabel}>비용</span>
-                  <span className={`${styles.quoteValue} ${styles.quotePrice}`}>
-                    무료
-                  </span>
+                  <span className={`${styles.quoteValue} ${styles.quotePrice}`}>무료</span>
                 </div>
               </div>
-              <div className={styles.phoneCardFooter}>
-                🖨️ 출력 준비 완료
-              </div>
+              <div className={styles.phoneCardFooter}>🖨️ 출력 준비 완료</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Carriers */}
+      {/* Carriers — 탭 스타일 */}
       <section id="carriers" className={styles.services}>
         <div className={styles.servicesInner}>
           <span className={styles.sectionTag}>통신사</span>
           <h2 className={styles.sectionTitle}>어떤 통신사 신청서가 필요하세요?</h2>
-          <p className={styles.sectionDesc}>
-            3대 통신사는 물론, 알뜰폰·선불폰·법인까지 모두 지원합니다.
-          </p>
+
           {carriersLoading ? (
-            <>
-              {[1, 2, 3].map((g) => (
-                <div key={g} style={{ marginBottom: 32 }}>
-                  <div className="skeleton" style={{ width: 160, height: 24, marginBottom: 14 }} />
-                  <div className={styles.serviceGrid}>
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="skeleton" style={{ height: 130, borderRadius: 16 }} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </>
+            <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
+              {[1, 2, 3].map((i) => <div key={i} className="skeleton" style={{ width: 120, height: 48, borderRadius: 12 }} />)}
+            </div>
           ) : (
-            tree.map((mno, gi) => (
-              <div key={mno.id} className="fadeIn" style={{ marginBottom: 32, animationDelay: `${gi * 0.1}s` }}>
-                <h3 style={{ fontSize: 18, fontWeight: 800, color: "var(--text-0)", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
-                  {mno.icon.startsWith("http") || mno.icon.startsWith("/") ? (
-                    <img src={mno.icon} alt={mno.title} style={{ width: 24, height: 24, objectFit: "contain" }} />
-                  ) : <span>{mno.icon}</span>}
-                  {mno.title}
-                  <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-3)" }}>({mno.children?.length || 0})</span>
-                </h3>
-                <div className={styles.serviceGrid}>
-                  {(mno.children || []).map((c, ci) => (
-                    <Link key={c.id} href={`/form?carrier=${encodeURIComponent(c.id)}`} className={`${styles.serviceCard} fadeIn`} style={{ animationDelay: `${gi * 0.1 + ci * 0.04}s` }}>
+            <>
+              {/* 대분류 탭 */}
+              <div className={styles.mnoTabs}>
+                {tree.map((mno) => (
+                  <button
+                    key={mno.id}
+                    className={`${styles.mnoTab} ${activeMno === mno.id ? styles.mnoTabActive : ""}`}
+                    onClick={() => setActiveMno(mno.id)}
+                  >
+                    <span className={styles.mnoTabIcon}>
+                      {isImg(mno.icon) ? <img src={mno.icon} alt={mno.title} style={{ width: 22, height: 22, objectFit: "contain" }} /> : mno.icon}
+                    </span>
+                    <span>{mno.title}</span>
+                    <span className={styles.mnoTabCount}>{mno.children?.length || 0}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* 알뜰폰 그리드 */}
+              <div className={styles.serviceGrid}>
+                {mvnoList.length === 0 ? (
+                  <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: 40, color: "var(--text-3)" }}>등록된 알뜰폰이 없습니다.</div>
+                ) : (
+                  mvnoList.map((c, ci) => (
+                    <Link key={c.id} href={`/form?carrier=${encodeURIComponent(c.id)}`} className={`${styles.serviceCard} fadeIn`} style={{ animationDelay: `${ci * 0.04}s` }}>
                       <div className={`${styles.serviceIcon} ${styles[c.icon_style] || styles.serviceIconBlue}`}>
-                        {c.icon.startsWith("http") || c.icon.startsWith("/") ? (
-                          <img src={c.icon} alt={c.title} style={{ width: 28, height: 28, objectFit: "contain" }} />
-                        ) : c.icon}
+                        {isImg(c.icon) ? <img src={c.icon} alt={c.title} style={{ width: 28, height: 28, objectFit: "contain" }} /> : c.icon}
                       </div>
                       <h3>{c.title}</h3>
                       <p>{c.description}</p>
                       <div className={styles.servicePrice}>{c.forms}</div>
                     </Link>
-                  ))}
-                </div>
+                  ))
+                )}
               </div>
-            ))
+            </>
           )}
+        </div>
+      </section>
+
+      {/* 공지사항 + 문의하기 */}
+      <section className={styles.infoSection}>
+        <div className={styles.infoInner}>
+          {/* 공지사항 */}
+          <div className={styles.infoCard}>
+            <div className={styles.infoCardHeader}>
+              <h3 className={styles.infoCardTitle}>📢 공지사항</h3>
+              <Link href="/notices" className={styles.infoCardMore}>전체보기 →</Link>
+            </div>
+            <div className={styles.noticeList}>
+              {notices.length === 0 ? (
+                <div className={styles.noticeEmpty}>등록된 공지가 없습니다.</div>
+              ) : (
+                notices.map((n) => (
+                  <Link href="/notices" key={n.id} className={styles.noticeItem}>
+                    <div className={styles.noticeItemLeft}>
+                      {n.is_pinned ? <span className={styles.noticePinBadge}>공지</span> : null}
+                      <span className={styles.noticeItemTitle}>{n.title}</span>
+                    </div>
+                    <span className={styles.noticeItemDate}>{n.created_at?.slice(0, 10)}</span>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* 문의하기 */}
+          <div className={styles.infoCard}>
+            <div className={styles.infoCardHeader}>
+              <h3 className={styles.infoCardTitle}>💬 문의하기</h3>
+            </div>
+            <div className={styles.inquiryBox}>
+              <p className={styles.inquiryDesc}>
+                궁금한 점이나 양식 요청 등<br />
+                무엇이든 편하게 문의해주세요.
+              </p>
+              <Link href="/inquiry" className={styles.inquiryBtn}>문의 등록하기 →</Link>
+            </div>
+          </div>
         </div>
       </section>
 
