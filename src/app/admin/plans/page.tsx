@@ -89,23 +89,20 @@ function PlansContent() {
       <aside className={styles.sidebar}>
         <div className={styles.sidebarLogo}><span className={styles.sidebarLogoIcon}>H</span>관리자</div>
         <nav className={styles.sidebarNav}>
-          <Link href="/admin/carriers" className={styles.sidebarLink}>📱 통신사 관리</Link>
-          <span className={`${styles.sidebarLink} ${styles.sidebarLinkActive}`}>💰 요금제 관리</span>
+          <Link href="/admin/carriers" className={styles.sidebarLink}>📱 통신사</Link>
+          <span className={`${styles.sidebarLink} ${styles.sidebarLinkActive}`}>💰 요금제</span>
+          <Link href="/admin/notices" className={styles.sidebarLink}>📢 공지사항</Link>
+          <Link href="/admin/inquiries" className={styles.sidebarLink}>💬 문의</Link>
         </nav>
         <div className={styles.sidebarLogout}><button className={styles.logoutBtn} onClick={handleLogout}>로그아웃</button></div>
       </aside>
 
       {/* Mobile Bottom Tab */}
       <nav className={styles.bottomTab}>
-        <Link href="/admin/carriers" className={styles.tabLink}>
-          <span className={styles.tabIcon}>📱</span><span className={styles.tabLabel}>통신사</span>
-        </Link>
-        <Link href="/admin/plans" className={`${styles.tabLink} ${styles.tabLinkActive}`}>
-          <span className={styles.tabIcon}>💰</span><span className={styles.tabLabel}>요금제</span>
-        </Link>
-        <button className={styles.tabLink} onClick={handleLogout}>
-          <span className={styles.tabIcon}>🚪</span><span className={styles.tabLabel}>로그아웃</span>
-        </button>
+        <Link href="/admin/carriers" className={styles.tabLink}><span className={styles.tabIcon}>📱</span><span className={styles.tabLabel}>통신사</span></Link>
+        <Link href="/admin/plans" className={`${styles.tabLink} ${styles.tabLinkActive}`}><span className={styles.tabIcon}>💰</span><span className={styles.tabLabel}>요금제</span></Link>
+        <Link href="/admin/notices" className={styles.tabLink}><span className={styles.tabIcon}>📢</span><span className={styles.tabLabel}>공지</span></Link>
+        <Link href="/admin/inquiries" className={styles.tabLink}><span className={styles.tabIcon}>💬</span><span className={styles.tabLabel}>문의</span></Link>
       </nav>
 
       <main className={styles.main}>

@@ -152,8 +152,8 @@ export default function Home() {
             <div className={styles.footerCol}>
               <h4>고객지원</h4>
               <ul>
-                <li><a href="#">공지사항</a></li>
-                <li><a href="#">문의하기</a></li>
+                <li><Link href="/notices">공지사항</Link></li>
+                <li><Link href="/inquiry">문의하기</Link></li>
               </ul>
             </div>
             <div className={styles.footerCol}>
