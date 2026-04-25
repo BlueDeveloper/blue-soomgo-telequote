@@ -93,14 +93,21 @@ export default function Home() {
             3대 통신사는 물론, 알뜰폰·선불폰·법인까지 모두 지원합니다.
           </p>
           {carriersLoading ? (
-            <div className={styles.serviceGrid}>
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className={styles.serviceCard} style={{ opacity: 0.4, minHeight: 140 }} />
+            <>
+              {[1, 2, 3].map((g) => (
+                <div key={g} style={{ marginBottom: 32 }}>
+                  <div className="skeleton" style={{ width: 160, height: 24, marginBottom: 14 }} />
+                  <div className={styles.serviceGrid}>
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="skeleton" style={{ height: 130, borderRadius: 16 }} />
+                    ))}
+                  </div>
+                </div>
               ))}
-            </div>
+            </>
           ) : (
-            tree.map((mno) => (
-              <div key={mno.id} style={{ marginBottom: 32 }}>
+            tree.map((mno, gi) => (
+              <div key={mno.id} className="fadeIn" style={{ marginBottom: 32, animationDelay: `${gi * 0.1}s` }}>
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: "var(--text-0)", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
                   {mno.icon.startsWith("http") || mno.icon.startsWith("/") ? (
                     <img src={mno.icon} alt={mno.title} style={{ width: 24, height: 24, objectFit: "contain" }} />
@@ -109,8 +116,8 @@ export default function Home() {
                   <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-3)" }}>({mno.children?.length || 0})</span>
                 </h3>
                 <div className={styles.serviceGrid}>
-                  {(mno.children || []).map((c) => (
-                    <Link key={c.id} href={`/form?carrier=${encodeURIComponent(c.id)}`} className={styles.serviceCard}>
+                  {(mno.children || []).map((c, ci) => (
+                    <Link key={c.id} href={`/form?carrier=${encodeURIComponent(c.id)}`} className={`${styles.serviceCard} fadeIn`} style={{ animationDelay: `${gi * 0.1 + ci * 0.04}s` }}>
                       <div className={`${styles.serviceIcon} ${styles[c.icon_style] || styles.serviceIconBlue}`}>
                         {c.icon.startsWith("http") || c.icon.startsWith("/") ? (
                           <img src={c.icon} alt={c.title} style={{ width: 28, height: 28, objectFit: "contain" }} />

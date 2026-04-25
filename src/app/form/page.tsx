@@ -110,7 +110,7 @@ function FormContent() {
         <Header />
         <div className={styles.page}>
           <div className={styles.container}>
-            <div className={styles.formCard}>
+            <div className={`${styles.formCard} fadeIn`}>
               <div className={styles.complete}>
                 <div className={styles.completeIcon}>🖨️</div>
                 <h2>신청서가 완성되었습니다!</h2>
@@ -175,19 +175,21 @@ function FormContent() {
             ))}
           </div>
 
-          <div className={styles.formCard}>
+          <div className={`${styles.formCard} fadeIn`}>
             {/* Step 1: 대분류(통신망) 선택 */}
             {step === 1 && (
               <>
                 <h2 className={styles.formTitle}>통신망을 선택하세요</h2>
                 <p className={styles.formDesc}>어떤 통신망의 알뜰폰 신청서가 필요한가요?</p>
                 <div className={styles.carrierGrid} style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
-                  {tree.map((mno) => (
+                  {tree.length === 0
+                    ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 110, borderRadius: 14 }} />)
+                    : tree.map((mno, i) => (
                     <div
                       key={mno.id}
-                      className={`${styles.carrierCard} ${selectedMno === mno.id ? styles.carrierCardActive : ""}`}
+                      className={`${styles.carrierCard} ${selectedMno === mno.id ? styles.carrierCardActive : ""} fadeIn`}
                       onClick={() => { setSelectedMno(mno.id); setSelectedCarrier(""); setSelectedPlan(null); setAllPlans([]); }}
-                      style={{ minHeight: 110 }}
+                      style={{ minHeight: 110, animationDelay: `${i * 0.08}s` }}
                     >
                       <div className={styles.carrierCardIcon} style={{ fontSize: 32 }}>
                         {mno.icon.startsWith("http") || mno.icon.startsWith("/") ? (
@@ -208,11 +210,12 @@ function FormContent() {
                 <h2 className={styles.formTitle}>{mnoName} 알뜰폰을 선택하세요</h2>
                 <p className={styles.formDesc}>{mnoName} 망을 사용하는 알뜰폰 통신사를 선택해주세요.</p>
                 <div className={styles.carrierGrid}>
-                  {mvnoList.map((c) => (
+                  {mvnoList.map((c, i) => (
                     <div
                       key={c.id}
-                      className={`${styles.carrierCard} ${selectedCarrier === c.id ? styles.carrierCardActive : ""}`}
+                      className={`${styles.carrierCard} ${selectedCarrier === c.id ? styles.carrierCardActive : ""} fadeIn`}
                       onClick={() => { setSelectedCarrier(c.id); setSelectedPlan(null); setAllPlans([]); }}
+                      style={{ animationDelay: `${i * 0.05}s` }}
                     >
                       <div className={styles.carrierCardIcon}>
                         {c.icon.startsWith("http") || c.icon.startsWith("/") ? (
