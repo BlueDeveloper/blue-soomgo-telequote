@@ -29,9 +29,7 @@ function PlansContent() {
     if (!token) { router.push("/admin"); return; }
     const data = await fetchCarriers(false);
     setCarriers(data);
-    if (!selectedCarrier && data.length > 0) {
-      setSelectedCarrier(data[0].id);
-    }
+    if (!selectedCarrier && data.length > 0) setSelectedCarrier(data[0].id);
   }, [router, selectedCarrier]);
 
   const loadPlans = useCallback(async () => {
@@ -81,94 +79,127 @@ function PlansContent() {
     router.push("/admin");
   };
 
-  const formatPrice = (n: number) => n.toLocaleString() + "원";
+  const fmt = (n: number) => n.toLocaleString() + "원";
 
   return (
     <div className={styles.adminLayout}>
+      {/* Desktop Sidebar */}
       <aside className={styles.sidebar}>
-        <div className={styles.sidebarLogo}>
-          <span className={styles.sidebarLogoIcon}>H</span>
-          관리자
-        </div>
+        <div className={styles.sidebarLogo}><span className={styles.sidebarLogoIcon}>H</span>관리자</div>
         <nav className={styles.sidebarNav}>
-          <Link href="/admin/carriers" className={styles.sidebarLink}>
-            📱 통신사 관리
-          </Link>
-          <span className={`${styles.sidebarLink} ${styles.sidebarLinkActive}`}>
-            💰 요금제 관리
-          </span>
+          <Link href="/admin/carriers" className={styles.sidebarLink}>📱 통신사 관리</Link>
+          <span className={`${styles.sidebarLink} ${styles.sidebarLinkActive}`}>💰 요금제 관리</span>
         </nav>
-        <div className={styles.sidebarLogout}>
-          <button className={styles.logoutBtn} onClick={handleLogout}>로그아웃</button>
-        </div>
+        <div className={styles.sidebarLogout}><button className={styles.logoutBtn} onClick={handleLogout}>로그아웃</button></div>
       </aside>
+
+      {/* Mobile Bottom Tab */}
+      <nav className={styles.bottomTab}>
+        <Link href="/admin/carriers" className={styles.tabLink}>
+          <span className={styles.tabIcon}>📱</span><span className={styles.tabLabel}>통신사</span>
+        </Link>
+        <Link href="/admin/plans" className={`${styles.tabLink} ${styles.tabLinkActive}`}>
+          <span className={styles.tabIcon}>💰</span><span className={styles.tabLabel}>요금제</span>
+        </Link>
+        <button className={styles.tabLink} onClick={handleLogout}>
+          <span className={styles.tabIcon}>🚪</span><span className={styles.tabLabel}>로그아웃</span>
+        </button>
+      </nav>
 
       <main className={styles.main}>
         <div className={styles.pageHeader}>
           <div>
-            <h1 className={styles.pageTitle}>{carrierName} 요금제 관리</h1>
+            <h1 className={styles.pageTitle}>요금제 관리</h1>
             <select
-              style={{ marginTop: 8, padding: "6px 10px", border: "1px solid var(--border)", borderRadius: 8, fontSize: 13, fontFamily: "inherit" }}
+              style={{ marginTop: 8, padding: "8px 12px", border: "1px solid var(--border)", borderRadius: 8, fontSize: 14, fontFamily: "inherit", width: "100%" }}
               value={selectedCarrier}
               onChange={(e) => setSelectedCarrier(e.target.value)}
             >
               {carriers.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
             </select>
           </div>
-          <button className={styles.addBtn} onClick={openCreate}>+ 요금제 추가</button>
+          <button className={styles.addBtn} onClick={openCreate}>+ 추가</button>
         </div>
 
         {loading ? (
           <div className={styles.empty}>불러오는 중...</div>
         ) : plans.length === 0 ? (
-          <div className={styles.empty}>등록된 요금제가 없습니다.</div>
+          <div className={styles.empty}>{carrierName}에 등록된 요금제가 없습니다.</div>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>순서</th>
-                <th>요금제명</th>
-                <th>월납부금액</th>
-                <th>기본료</th>
-                <th>할인</th>
-                <th>유형</th>
-                <th>데이터</th>
-                <th>음성</th>
-                <th>상태</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {plans.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.sort_order}</td>
-                  <td style={{ fontWeight: 600 }}>{p.name}</td>
-                  <td style={{ fontFamily: "var(--font-mono)" }}>{formatPrice(p.monthly)}</td>
-                  <td style={{ fontFamily: "var(--font-mono)" }}>{formatPrice(p.base_fee)}</td>
-                  <td style={{ fontFamily: "var(--font-mono)", color: "var(--danger)" }}>{formatPrice(p.discount)}</td>
-                  <td>{p.type === "postpaid" ? "후불" : "선불"}</td>
-                  <td>{p.data}</td>
-                  <td>{p.voice}</td>
-                  <td>{p.is_active ? "✅" : "❌"}</td>
-                  <td>
-                    <div className={styles.tableActions}>
-                      <button className={styles.editBtn} onClick={() => openEdit(p)}>수정</button>
-                      <button className={styles.deleteBtn} onClick={() => handleDelete(p.id, p.name)}>삭제</button>
-                    </div>
-                  </td>
+          <>
+            {/* Desktop Table */}
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>순서</th><th>요금제명</th><th>월납부금액</th><th>기본료</th><th>할인</th><th>유형</th><th>데이터</th><th>음성</th><th>상태</th><th>관리</th>
                 </tr>
+              </thead>
+              <tbody>
+                {plans.map((p) => (
+                  <tr key={p.id}>
+                    <td>{p.sort_order}</td>
+                    <td style={{ fontWeight: 600 }}>{p.name}</td>
+                    <td style={{ fontFamily: "var(--font-mono)" }}>{fmt(p.monthly)}</td>
+                    <td style={{ fontFamily: "var(--font-mono)" }}>{fmt(p.base_fee)}</td>
+                    <td style={{ fontFamily: "var(--font-mono)", color: "var(--danger)" }}>{fmt(p.discount)}</td>
+                    <td>{p.type === "postpaid" ? "후불" : "선불"}</td>
+                    <td>{p.data}</td>
+                    <td>{p.voice}</td>
+                    <td>{p.is_active ? "✅" : "❌"}</td>
+                    <td>
+                      <div className={styles.tableActions}>
+                        <button className={styles.editBtn} onClick={() => openEdit(p)}>수정</button>
+                        <button className={styles.deleteBtn} onClick={() => handleDelete(p.id, p.name)}>삭제</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Mobile Cards */}
+            <div className={styles.cardList}>
+              {plans.map((p) => (
+                <div key={p.id} className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <div className={styles.cardTitle}>{p.name}</div>
+                    <span className={`${styles.cardBadge} ${p.is_active ? styles.cardBadgeActive : styles.cardBadgeInactive}`}>
+                      {p.type === "postpaid" ? "후불" : "선불"}
+                    </span>
+                  </div>
+                  <div className={styles.cardBody}>
+                    <div className={styles.cardField}>
+                      <span className={styles.cardFieldLabel}>월 요금</span>
+                      <span className={styles.cardFieldValue} style={{ color: "var(--brand)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{fmt(p.monthly)}</span>
+                    </div>
+                    <div className={styles.cardField}>
+                      <span className={styles.cardFieldLabel}>할인</span>
+                      <span className={styles.cardFieldValue} style={{ color: "var(--danger)", fontFamily: "var(--font-mono)" }}>{fmt(p.discount)}</span>
+                    </div>
+                    <div className={styles.cardField}>
+                      <span className={styles.cardFieldLabel}>데이터</span>
+                      <span className={styles.cardFieldValue}>{p.data}</span>
+                    </div>
+                    <div className={styles.cardField}>
+                      <span className={styles.cardFieldLabel}>음성</span>
+                      <span className={styles.cardFieldValue}>{p.voice}</span>
+                    </div>
+                  </div>
+                  <div className={styles.cardActions}>
+                    <button className={styles.cardEditBtn} onClick={() => openEdit(p)}>수정</button>
+                    <button className={styles.cardDeleteBtn} onClick={() => handleDelete(p.id, p.name)}>삭제</button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
 
         {/* Modal */}
         {modal && (
           <div className={styles.overlay} onClick={() => setModal(null)}>
             <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-              <h2 className={styles.modalTitle}>
-                {modal === "create" ? "요금제 추가" : "요금제 수정"}
-              </h2>
+              <h2 className={styles.modalTitle}>{modal === "create" ? "요금제 추가" : "요금제 수정"}</h2>
 
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>요금제명</label>
