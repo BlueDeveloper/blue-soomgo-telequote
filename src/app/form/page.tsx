@@ -258,6 +258,7 @@ function FormContent() {
                     <div className={styles.filterGroup}>
                       <span className={styles.filterLabel}>통신사</span>
                       <select className={styles.filterSelect} value={selectedCarrier} onChange={(e) => { setSelectedCarrier(e.target.value); setSelectedPlan(null); }}>
+                        <option value="" disabled>선택하세요</option>
                         {tree.map((mno) => (
                           <optgroup key={mno.id} label={mno.title}>
                             {(mno.children || []).map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}

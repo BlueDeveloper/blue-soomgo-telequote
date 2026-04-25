@@ -123,6 +123,7 @@ function PlansContent() {
               value={selectedCarrier}
               onChange={(e) => setSelectedCarrier(e.target.value)}
             >
+              <option value="" disabled>선택하세요</option>
               {tree.map((mno) => (
                 <optgroup key={mno.id} label={mno.title}>
                   {(mno.children || []).map((mvno) => (
