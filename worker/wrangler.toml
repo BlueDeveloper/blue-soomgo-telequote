@@ -5,7 +5,7 @@ compatibility_date = "2024-12-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "hlmobile-db"
-database_id = "bf45ac77-7f56-4f17-a424-0bf83e884d55"
+database_id = "645d85b0-f021-49a6-9c65-c30c692f0c5a"
 
 [[r2_buckets]]
 binding = "R2"

@@ -19,7 +19,7 @@ export async function handleUpload(request: Request, env: Env): Promise<Response
     httpMetadata: { contentType: file.type },
   });
 
-  const url = `https://hlmobile-api.raon-foodtruck.workers.dev/r2/${key}`;
+  const url = `https://hlmobile-api.blueehdwp.workers.dev/r2/${key}`;
   return json({ ok: true, data: { url, key } }, 201);
 }
 
