@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
-import { fetchCarriers } from "@/lib/api";
+import { fetchCarrierTree } from "@/lib/api";
 import type { Carrier } from "@/types";
 import styles from "./page.module.css";
 
@@ -30,15 +30,17 @@ const reviews = [
 ];
 
 export default function Home() {
-  const [carriers, setCarriers] = useState<Carrier[]>([]);
+  const [tree, setTree] = useState<Carrier[]>([]);
   const [carriersLoading, setCarriersLoading] = useState(true);
 
   useEffect(() => {
-    fetchCarriers()
-      .then(setCarriers)
+    fetchCarrierTree()
+      .then(setTree)
       .catch(() => {})
       .finally(() => setCarriersLoading(false));
   }, []);
+
+  const totalMvno = tree.reduce((sum, m) => sum + (m.children?.length || 0), 0);
 
   return (
     <>
@@ -113,7 +115,7 @@ export default function Home() {
       <section className={styles.stats}>
         <div className={styles.statsInner}>
           <div className={styles.statCard}>
-            <div className={styles.statNumber}>{carriers.length || "14"}+</div>
+            <div className={styles.statNumber}>{totalMvno || "14"}+</div>
             <div className={styles.statLabel}>지원 통신사</div>
           </div>
           <div className={styles.statCard}>
@@ -139,28 +141,39 @@ export default function Home() {
           <p className={styles.sectionDesc}>
             3대 통신사는 물론, 알뜰폰·선불폰·법인까지 모두 지원합니다.
           </p>
-          <div className={styles.serviceGrid}>
-            {carriersLoading
-              ? Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className={styles.serviceCard} style={{ opacity: 0.4, minHeight: 140 }} />
-                ))
-              : carriers.map((c) => (
-                  <Link
-                    key={c.id}
-                    href={`/form?carrier=${encodeURIComponent(c.id)}`}
-                    className={styles.serviceCard}
-                  >
-                    <div className={`${styles.serviceIcon} ${styles[c.icon_style] || styles.serviceIconBlue}`}>
-                      {c.icon.startsWith("http") || c.icon.startsWith("/") ? (
-                        <img src={c.icon} alt={c.title} style={{ width: 28, height: 28, objectFit: "contain" }} />
-                      ) : c.icon}
-                    </div>
-                    <h3>{c.title}</h3>
-                    <p>{c.description}</p>
-                    <div className={styles.servicePrice}>{c.forms}</div>
-                  </Link>
-                ))}
-          </div>
+          {carriersLoading ? (
+            <div className={styles.serviceGrid}>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className={styles.serviceCard} style={{ opacity: 0.4, minHeight: 140 }} />
+              ))}
+            </div>
+          ) : (
+            tree.map((mno) => (
+              <div key={mno.id} style={{ marginBottom: 32 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: "var(--text-0)", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
+                  {mno.icon.startsWith("http") || mno.icon.startsWith("/") ? (
+                    <img src={mno.icon} alt={mno.title} style={{ width: 24, height: 24, objectFit: "contain" }} />
+                  ) : <span>{mno.icon}</span>}
+                  {mno.title}
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-3)" }}>({mno.children?.length || 0})</span>
+                </h3>
+                <div className={styles.serviceGrid}>
+                  {(mno.children || []).map((c) => (
+                    <Link key={c.id} href={`/form?carrier=${encodeURIComponent(c.id)}`} className={styles.serviceCard}>
+                      <div className={`${styles.serviceIcon} ${styles[c.icon_style] || styles.serviceIconBlue}`}>
+                        {c.icon.startsWith("http") || c.icon.startsWith("/") ? (
+                          <img src={c.icon} alt={c.title} style={{ width: 28, height: 28, objectFit: "contain" }} />
+                        ) : c.icon}
+                      </div>
+                      <h3>{c.title}</h3>
+                      <p>{c.description}</p>
+                      <div className={styles.servicePrice}>{c.forms}</div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
 

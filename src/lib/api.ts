@@ -32,10 +32,19 @@ export async function login(password: string): Promise<ApiResponse<{ token: stri
 }
 
 // Carriers
-export async function fetchCarriers(activeOnly = true): Promise<Carrier[]> {
-  const res = await request<Carrier[]>(
-    `/api/carriers${activeOnly ? "" : "?active=0"}`
-  );
+export async function fetchCarriers(activeOnly = true, parent?: string | null): Promise<Carrier[]> {
+  const params = new URLSearchParams();
+  if (!activeOnly) params.set("active", "0");
+  if (parent !== undefined) params.set("parent", parent === null ? "null" : parent);
+  const qs = params.toString();
+  const res = await request<Carrier[]>(`/api/carriers${qs ? `?${qs}` : ""}`);
+  return res.data || [];
+}
+
+export async function fetchCarrierTree(activeOnly = true): Promise<Carrier[]> {
+  const params = new URLSearchParams({ tree: "1" });
+  if (!activeOnly) params.set("active", "0");
+  const res = await request<Carrier[]>(`/api/carriers?${params.toString()}`);
   return res.data || [];
 }
 

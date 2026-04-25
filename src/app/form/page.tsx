@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
-import { fetchCarriers, fetchPlans } from "@/lib/api";
+import { fetchCarrierTree, fetchPlans } from "@/lib/api";
 import type { Carrier, Plan } from "@/types";
 import styles from "./page.module.css";
 
@@ -15,14 +15,15 @@ const formTypes = [
   { id: "cancel", title: "해지", desc: "회선 해지 신청" },
 ];
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5; // 대분류 → 알뜰폰 → 요금제 → 정보 → 확인
 
 function FormContent() {
   const searchParams = useSearchParams();
   const initialCarrier = searchParams.get("carrier") || "";
 
-  const [step, setStep] = useState(1);
-  const [carrierList, setCarrierList] = useState<Carrier[]>([]);
+  const [step, setStep] = useState(initialCarrier ? 2 : 1);
+  const [tree, setTree] = useState<Carrier[]>([]);
+  const [selectedMno, setSelectedMno] = useState("");
   const [selectedCarrier, setSelectedCarrier] = useState(initialCarrier);
   const [selectedFormType, setSelectedFormType] = useState("");
 
@@ -41,10 +42,19 @@ function FormContent() {
 
   const [submitted, setSubmitted] = useState(false);
 
-  // 통신사 목록 로드
+  // 트리 로드
   useEffect(() => {
-    fetchCarriers().then(setCarrierList).catch(() => {});
-  }, []);
+    fetchCarrierTree().then((data) => {
+      setTree(data);
+      // URL에서 carrier가 왔으면 대분류 자동 선택
+      if (initialCarrier) {
+        const parent = data.find(m => m.children?.some(c => c.id === initialCarrier));
+        if (parent) setSelectedMno(parent.id);
+      }
+    }).catch(() => {});
+  }, [initialCarrier]);
+
+  const mvnoList = tree.find(m => m.id === selectedMno)?.children || [];
 
   // 요금제 로드 (통신사 변경 시)
   const loadPlans = useCallback(async (carrierId: string) => {
@@ -70,10 +80,11 @@ function FormContent() {
 
   const canProceed = () => {
     switch (step) {
-      case 1: return selectedCarrier !== "";
-      case 2: return selectedFormType !== "" && selectedPlan !== null;
-      case 3: return formData.name !== "" && formData.phone !== "" && formData.birth !== "";
-      case 4: return true;
+      case 1: return selectedMno !== "";
+      case 2: return selectedCarrier !== "";
+      case 3: return selectedFormType !== "" && selectedPlan !== null;
+      case 4: return formData.name !== "" && formData.phone !== "" && formData.birth !== "";
+      case 5: return true;
       default: return false;
     }
   };
@@ -86,9 +97,10 @@ function FormContent() {
 
   const handleBack = () => { if (step > 1) setStep(step - 1); };
 
-  const carrierName = carrierList.find((c) => c.id === selectedCarrier)?.title || selectedCarrier;
+  const mnoName = tree.find(m => m.id === selectedMno)?.title || "";
+  const carrierName = mvnoList.find((c) => c.id === selectedCarrier)?.title || selectedCarrier;
   const formTypeName = formTypes.find((f) => f.id === selectedFormType)?.title || "";
-  const stepLabels = ["통신사", "요금제", "정보입력", "확인"];
+  const stepLabels = ["통신망", "통신사", "요금제", "정보", "확인"];
   const formatPrice = (n: number) => n.toLocaleString() + "원";
 
   if (submitted) {
@@ -169,13 +181,39 @@ function FormContent() {
           </div>
 
           <div className={styles.formCard}>
-            {/* Step 1: 통신사 선택 */}
+            {/* Step 1: 대분류(통신망) 선택 */}
             {step === 1 && (
               <>
-                <h2 className={styles.formTitle}>통신사를 선택하세요</h2>
-                <p className={styles.formDesc}>신청서를 작성할 통신사를 선택해주세요.</p>
+                <h2 className={styles.formTitle}>통신망을 선택하세요</h2>
+                <p className={styles.formDesc}>어떤 통신망의 알뜰폰 신청서가 필요한가요?</p>
+                <div className={styles.carrierGrid} style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+                  {tree.map((mno) => (
+                    <div
+                      key={mno.id}
+                      className={`${styles.carrierCard} ${selectedMno === mno.id ? styles.carrierCardActive : ""}`}
+                      onClick={() => { setSelectedMno(mno.id); setSelectedCarrier(""); setSelectedPlan(null); setAllPlans([]); }}
+                      style={{ minHeight: 110 }}
+                    >
+                      <div className={styles.carrierCardIcon} style={{ fontSize: 32 }}>
+                        {mno.icon.startsWith("http") || mno.icon.startsWith("/") ? (
+                          <img src={mno.icon} alt={mno.title} style={{ width: 32, height: 32, objectFit: "contain" }} />
+                        ) : mno.icon}
+                      </div>
+                      <div className={styles.carrierCardTitle} style={{ fontSize: 16 }}>{mno.title}</div>
+                      <div className={styles.carrierCardDesc}>알뜰폰 {mno.children?.length || 0}개</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Step 2: 알뜰폰(MVNO) 선택 */}
+            {step === 2 && (
+              <>
+                <h2 className={styles.formTitle}>{mnoName} 알뜰폰을 선택하세요</h2>
+                <p className={styles.formDesc}>{mnoName} 망을 사용하는 알뜰폰 통신사를 선택해주세요.</p>
                 <div className={styles.carrierGrid}>
-                  {carrierList.map((c) => (
+                  {mvnoList.map((c) => (
                     <div
                       key={c.id}
                       className={`${styles.carrierCard} ${selectedCarrier === c.id ? styles.carrierCardActive : ""}`}
@@ -194,8 +232,8 @@ function FormContent() {
               </>
             )}
 
-            {/* Step 2: 신청 유형 + 요금제 */}
-            {step === 2 && (
+            {/* Step 3: 신청 유형 + 요금제 */}
+            {step === 3 && (
               <>
                 <h2 className={styles.formTitle}>신청 유형과 요금제를 선택하세요</h2>
                 <p className={styles.formDesc}>{carrierName} 신청서 양식을 선택하고 요금제를 지정해주세요.</p>
@@ -224,7 +262,11 @@ function FormContent() {
                     <div className={styles.filterGroup}>
                       <span className={styles.filterLabel}>통신사</span>
                       <select className={styles.filterSelect} value={selectedCarrier} onChange={(e) => { setSelectedCarrier(e.target.value); setSelectedPlan(null); }}>
-                        {carrierList.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+                        {tree.map((mno) => (
+                          <optgroup key={mno.id} label={mno.title}>
+                            {(mno.children || []).map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+                          </optgroup>
+                        ))}
                       </select>
                     </div>
                     <div className={styles.filterGroup}>
@@ -316,8 +358,8 @@ function FormContent() {
               </>
             )}
 
-            {/* Step 3: 개인정보 */}
-            {step === 3 && (
+            {/* Step 4: 개인정보 */}
+            {step === 4 && (
               <>
                 <h2 className={styles.formTitle}>신청자 정보를 입력하세요</h2>
                 <p className={styles.formDesc}>신청서에 기재될 정보를 입력해주세요.</p>
@@ -363,12 +405,13 @@ function FormContent() {
               </>
             )}
 
-            {/* Step 4: 확인 */}
-            {step === 4 && (
+            {/* Step 5: 확인 */}
+            {step === 5 && (
               <>
                 <h2 className={styles.formTitle}>신청서 내용을 확인하세요</h2>
                 <p className={styles.formDesc}>아래 내용이 맞는지 확인 후 출력 버튼을 눌러주세요.</p>
                 <div className={styles.completeInfo}>
+                  <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>통신망</span><span className={styles.completeInfoValue}>{mnoName}</span></div>
                   <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>통신사</span><span className={styles.completeInfoValue}>{carrierName}</span></div>
                   <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>신청 유형</span><span className={styles.completeInfoValue}>{formTypeName}</span></div>
                   <div className={styles.completeInfoRow}><span className={styles.completeInfoLabel}>결제 방식</span><span className={styles.completeInfoValue}>{paymentType === "postpaid" ? "후불" : "선불"}</span></div>

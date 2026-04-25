@@ -6,9 +6,11 @@ export interface Carrier {
   description: string;
   forms: string;
   sort_order: number;
+  parent_id: string | null;
   is_active: number;
   created_at: string;
   updated_at: string;
+  children?: Carrier[];
 }
 
 export interface Plan {

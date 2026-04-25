@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { fetchCarriers, fetchPlans, createPlan, updatePlan, deletePlan } from "@/lib/api";
+import { fetchCarrierTree, fetchPlans, createPlan, updatePlan, deletePlan } from "@/lib/api";
 import type { Carrier, Plan } from "@/types";
 import styles from "../page.module.css";
 
@@ -12,7 +12,7 @@ function PlansContent() {
   const carrierId = searchParams.get("carrier") || "";
   const router = useRouter();
 
-  const [carriers, setCarriers] = useState<Carrier[]>([]);
+  const [tree, setTree] = useState<Carrier[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedCarrier, setSelectedCarrier] = useState(carrierId);
   const [loading, setLoading] = useState(true);
@@ -27,9 +27,11 @@ function PlansContent() {
   const loadCarriers = useCallback(async () => {
     const token = sessionStorage.getItem("admin_token");
     if (!token) { router.push("/admin"); return; }
-    const data = await fetchCarriers(false);
-    setCarriers(data);
-    if (!selectedCarrier && data.length > 0) setSelectedCarrier(data[0].id);
+    const data = await fetchCarrierTree(false);
+    setTree(data);
+    if (!selectedCarrier && data.length > 0 && data[0].children && data[0].children.length > 0) {
+      setSelectedCarrier(data[0].children[0].id);
+    }
   }, [router, selectedCarrier]);
 
   const loadPlans = useCallback(async () => {
@@ -43,7 +45,7 @@ function PlansContent() {
   useEffect(() => { loadCarriers(); }, [loadCarriers]);
   useEffect(() => { loadPlans(); }, [loadPlans]);
 
-  const carrierName = carriers.find((c) => c.id === selectedCarrier)?.title || selectedCarrier;
+  const carrierName = tree.flatMap(m => m.children || []).find((c) => c.id === selectedCarrier)?.title || selectedCarrier;
 
   const openCreate = () => {
     setForm({ name: "", monthly: 0, base_fee: 0, discount: 0, voice: "", sms: "", data: "", qos: "-", type: "postpaid", sort_order: plans.length + 1 });
@@ -115,7 +117,13 @@ function PlansContent() {
               value={selectedCarrier}
               onChange={(e) => setSelectedCarrier(e.target.value)}
             >
-              {carriers.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+              {tree.map((mno) => (
+                <optgroup key={mno.id} label={mno.title}>
+                  {(mno.children || []).map((mvno) => (
+                    <option key={mvno.id} value={mvno.id}>{mvno.title}</option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
           </div>
           <button className={styles.addBtn} onClick={openCreate}>+ 추가</button>

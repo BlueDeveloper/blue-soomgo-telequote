@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS carriers (
   description TEXT NOT NULL,
   forms TEXT NOT NULL DEFAULT '',
   sort_order INTEGER NOT NULL DEFAULT 0,
+  parent_id TEXT DEFAULT NULL,
   is_active INTEGER NOT NULL DEFAULT 1,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))

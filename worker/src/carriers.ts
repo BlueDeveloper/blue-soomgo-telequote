@@ -11,7 +11,6 @@ export async function handleCarriers(
     return id ? getCarrier(env, id) : listCarriers(env, request);
   }
 
-  // 인증 필요
   const authErr = await requireAuth(request, env);
   if (authErr) return authErr;
 
@@ -25,12 +24,40 @@ export async function handleCarriers(
 async function listCarriers(env: Env, request: Request): Promise<Response> {
   const url = new URL(request.url);
   const activeOnly = url.searchParams.get("active") !== "0";
+  const parent = url.searchParams.get("parent"); // "null" → 대분류, "skt" → SKT 소속
+  const tree = url.searchParams.get("tree") === "1";
 
-  const query = activeOnly
-    ? "SELECT * FROM carriers WHERE is_active = 1 ORDER BY sort_order ASC"
-    : "SELECT * FROM carriers ORDER BY sort_order ASC";
+  // 트리 구조 반환
+  if (tree) {
+    const activeClause = activeOnly ? " WHERE is_active = 1" : "";
+    const all = await env.DB.prepare(`SELECT * FROM carriers${activeClause} ORDER BY sort_order ASC`).all();
+    const items = all.results as Record<string, unknown>[];
 
-  const result = await env.DB.prepare(query).all();
+    const roots = items.filter((c) => !c.parent_id);
+    const result = roots.map((root) => ({
+      ...root,
+      children: items.filter((c) => c.parent_id === root.id),
+    }));
+    return json({ ok: true, data: result });
+  }
+
+  // parent 필터
+  let query = "SELECT * FROM carriers WHERE 1=1";
+  const binds: unknown[] = [];
+
+  if (parent === "null" || parent === "") {
+    query += " AND parent_id IS NULL";
+  } else if (parent) {
+    query += " AND parent_id = ?";
+    binds.push(parent);
+  }
+  // parent 미지정이면 전체 반환
+
+  if (activeOnly) query += " AND is_active = 1";
+  query += " ORDER BY sort_order ASC";
+
+  const stmt = env.DB.prepare(query);
+  const result = binds.length > 0 ? await stmt.bind(...binds).all() : await stmt.all();
   return json({ ok: true, data: result.results });
 }
 
@@ -42,17 +69,17 @@ async function getCarrier(env: Env, id: string): Promise<Response> {
 
 async function createCarrier(env: Env, request: Request): Promise<Response> {
   const body = await request.json<Record<string, unknown>>();
-  const { id, icon, iconStyle, title, description, forms, sortOrder } = body as {
+  const { id, icon, iconStyle, title, description, forms, sortOrder, parentId } = body as {
     id: string; icon: string; iconStyle: string; title: string;
-    description: string; forms: string; sortOrder: number;
+    description: string; forms: string; sortOrder: number; parentId: string | null;
   };
 
   if (!id || !title) return json({ ok: false, error: "id와 title은 필수입니다" }, 400);
 
   await env.DB.prepare(
-    `INSERT INTO carriers (id, icon, icon_style, title, description, forms, sort_order)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`
-  ).bind(id, icon || "📱", iconStyle || "serviceIconBlue", title, description || "", forms || "", sortOrder || 0).run();
+    `INSERT INTO carriers (id, icon, icon_style, title, description, forms, sort_order, parent_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(id, icon || "📱", iconStyle || "serviceIconBlue", title, description || "", forms || "", sortOrder || 0, parentId || null).run();
 
   return json({ ok: true, data: { id } }, 201);
 }
@@ -62,12 +89,17 @@ async function updateCarrier(env: Env, id: string, request: Request): Promise<Re
   const fields: string[] = [];
   const values: unknown[] = [];
 
+  const fieldMap: Record<string, string> = {
+    icon: "icon", iconStyle: "icon_style", title: "title",
+    description: "description", forms: "forms", sortOrder: "sort_order",
+    isActive: "is_active", parentId: "parent_id",
+    icon_style: "icon_style", sort_order: "sort_order",
+    is_active: "is_active", parent_id: "parent_id",
+  };
+
   for (const [key, val] of Object.entries(body)) {
-    const col = key === "iconStyle" ? "icon_style" : key === "sortOrder" ? "sort_order" : key === "isActive" ? "is_active" : key;
-    if (["icon", "icon_style", "title", "description", "forms", "sort_order", "is_active"].includes(col)) {
-      fields.push(`${col} = ?`);
-      values.push(val);
-    }
+    const col = fieldMap[key];
+    if (col) { fields.push(`${col} = ?`); values.push(val); }
   }
 
   if (fields.length === 0) return json({ ok: false, error: "수정할 필드가 없습니다" }, 400);
@@ -80,6 +112,12 @@ async function updateCarrier(env: Env, id: string, request: Request): Promise<Re
 }
 
 async function deleteCarrier(env: Env, id: string): Promise<Response> {
+  // 대분류 삭제 시 하위 알뜰폰의 요금제도 삭제
+  const children = await env.DB.prepare("SELECT id FROM carriers WHERE parent_id = ?").bind(id).all();
+  for (const child of children.results as { id: string }[]) {
+    await env.DB.prepare("DELETE FROM plans WHERE carrier_id = ?").bind(child.id).run();
+  }
+  await env.DB.prepare("DELETE FROM carriers WHERE parent_id = ?").bind(id).run();
   await env.DB.prepare("DELETE FROM plans WHERE carrier_id = ?").bind(id).run();
   await env.DB.prepare("DELETE FROM carriers WHERE id = ?").bind(id).run();
   return json({ ok: true });
