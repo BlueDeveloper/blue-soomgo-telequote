@@ -181,7 +181,11 @@ function FormContent() {
                       className={`${styles.carrierCard} ${selectedCarrier === c.id ? styles.carrierCardActive : ""}`}
                       onClick={() => { setSelectedCarrier(c.id); setSelectedPlan(null); setAllPlans([]); }}
                     >
-                      <div className={styles.carrierCardIcon}>{c.icon}</div>
+                      <div className={styles.carrierCardIcon}>
+                        {c.icon.startsWith("http") || c.icon.startsWith("/") ? (
+                          <img src={c.icon} alt={c.title} style={{ width: 24, height: 24, objectFit: "contain" }} />
+                        ) : c.icon}
+                      </div>
                       <div className={styles.carrierCardTitle}>{c.title}</div>
                       <div className={styles.carrierCardDesc}>{c.description}</div>
                     </div>

@@ -7,14 +7,12 @@ import { fetchCarriers, createCarrier, updateCarrier, deleteCarrier } from "@/li
 import type { Carrier } from "@/types";
 import styles from "../page.module.css";
 
-const ICON_STYLES = ["serviceIconBlue", "serviceIconGreen", "serviceIconOrange", "serviceIconPurple"];
-
 export default function CarriersPage() {
   const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<Carrier | null>(null);
-  const [form, setForm] = useState({ id: "", icon: "📱", icon_style: "serviceIconBlue", title: "", description: "", forms: "", sort_order: 0 });
+  const [form, setForm] = useState({ id: "", icon: "", icon_style: "serviceIconBlue", title: "", description: "", forms: "", sort_order: 0 });
   const router = useRouter();
 
   const load = useCallback(async () => {
@@ -29,7 +27,7 @@ export default function CarriersPage() {
   useEffect(() => { load(); }, [load]);
 
   const openCreate = () => {
-    setForm({ id: "", icon: "📱", icon_style: "serviceIconBlue", title: "", description: "", forms: "", sort_order: carriers.length + 1 });
+    setForm({ id: "", icon: "", icon_style: "serviceIconBlue", title: "", description: "", forms: "", sort_order: carriers.length + 1 });
     setEditing(null);
     setModal("create");
   };
@@ -63,6 +61,8 @@ export default function CarriersPage() {
     router.push("/admin");
   };
 
+  const isImageUrl = (str: string) => str.startsWith("http") || str.startsWith("/");
+
   return (
     <div className={styles.adminLayout}>
       <aside className={styles.sidebar}>
@@ -73,6 +73,9 @@ export default function CarriersPage() {
         <nav className={styles.sidebarNav}>
           <Link href="/admin/carriers" className={`${styles.sidebarLink} ${styles.sidebarLinkActive}`}>
             📱 통신사 관리
+          </Link>
+          <Link href="/admin/plans" className={styles.sidebarLink}>
+            💰 요금제 관리
           </Link>
         </nav>
         <div className={styles.sidebarLogout}>
@@ -101,7 +104,6 @@ export default function CarriersPage() {
                 <th>설명</th>
                 <th>양식</th>
                 <th>상태</th>
-                <th>요금제</th>
                 <th>관리</th>
               </tr>
             </thead>
@@ -109,17 +111,18 @@ export default function CarriersPage() {
               {carriers.map((c) => (
                 <tr key={c.id}>
                   <td>{c.sort_order}</td>
-                  <td>{c.icon}</td>
+                  <td>
+                    {isImageUrl(c.icon) ? (
+                      <img src={c.icon} alt={c.title} style={{ width: 32, height: 32, objectFit: "contain", borderRadius: 4 }} />
+                    ) : (
+                      <span style={{ fontSize: 24 }}>{c.icon}</span>
+                    )}
+                  </td>
                   <td style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>{c.id}</td>
                   <td style={{ fontWeight: 600 }}>{c.title}</td>
                   <td>{c.description}</td>
                   <td>{c.forms}</td>
                   <td>{c.is_active ? "✅" : "❌"}</td>
-                  <td>
-                    <Link href={`/admin/plans?carrier=${c.id}`} className={styles.plansLink}>
-                      요금제 관리 →
-                    </Link>
-                  </td>
                   <td>
                     <div className={styles.tableActions}>
                       <button className={styles.editBtn} onClick={() => openEdit(c)}>수정</button>
@@ -162,25 +165,24 @@ export default function CarriersPage() {
                 </div>
               </div>
 
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>아이콘</label>
-                  <input
-                    className={styles.formInput}
-                    value={form.icon}
-                    onChange={(e) => setForm({ ...form, icon: e.target.value })}
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>아이콘 스타일</label>
-                  <select
-                    className={styles.formSelect}
-                    value={form.icon_style}
-                    onChange={(e) => setForm({ ...form, icon_style: e.target.value })}
-                  >
-                    {ICON_STYLES.map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>아이콘 (이모지 또는 이미지 URL)</label>
+                <input
+                  className={styles.formInput}
+                  value={form.icon}
+                  onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                  placeholder="📱 또는 https://example.com/logo.png"
+                />
+                {form.icon && (
+                  <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, color: "var(--text-3)" }}>미리보기:</span>
+                    {isImageUrl(form.icon) ? (
+                      <img src={form.icon} alt="preview" style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 6, border: "1px solid var(--border)" }} />
+                    ) : (
+                      <span style={{ fontSize: 32 }}>{form.icon}</span>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className={styles.formGroup}>

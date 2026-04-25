@@ -151,7 +151,9 @@ export default function Home() {
                     className={styles.serviceCard}
                   >
                     <div className={`${styles.serviceIcon} ${styles[c.icon_style] || styles.serviceIconBlue}`}>
-                      {c.icon}
+                      {c.icon.startsWith("http") || c.icon.startsWith("/") ? (
+                        <img src={c.icon} alt={c.title} style={{ width: 28, height: 28, objectFit: "contain" }} />
+                      ) : c.icon}
                     </div>
                     <h3>{c.title}</h3>
                     <p>{c.description}</p>
