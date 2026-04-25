@@ -285,6 +285,7 @@ export default function Home() {
         </div>
         <div className={styles.footerBottom}>
           © 2026 hlmobile. All rights reserved.
+          <Link href="/admin" style={{ marginLeft: 16, color: "var(--text-3)", fontSize: 12 }}>관리자</Link>
         </div>
       </footer>
     </>
