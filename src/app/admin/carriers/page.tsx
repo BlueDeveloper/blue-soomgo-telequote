@@ -210,10 +210,13 @@ export default function CarriersPage() {
         {/* Modal */}
         {modal && (
           <div className={styles.overlay} onClick={() => setModal(null)}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-              <h2 className={styles.modalTitle}>
-                {modal === "create-mno" ? "대분류 추가" : modal === "create-mvno" ? `알뜰폰 추가 (${activeMnoData?.title})` : `${editing?.parent_id ? "알뜰폰" : "대분류"} 수정`}
-              </h2>
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSave(); } }}>
+              <div className={styles.modalHeader}>
+                <h2 className={styles.modalTitle}>
+                  {modal === "create-mno" ? "대분류 추가" : modal === "create-mvno" ? `알뜰폰 추가 (${activeMnoData?.title})` : `${editing?.parent_id ? "알뜰폰" : "대분류"} 수정`}
+                </h2>
+                <button className={styles.modalClose} onClick={() => setModal(null)}>✕</button>
+              </div>
 
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
@@ -255,6 +258,7 @@ export default function CarriersPage() {
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>결제 방식</label>
                   <select className={styles.formSelect} value={form.paymentType} onChange={(e) => setForm({ ...form, paymentType: e.target.value })}>
+                    <option value="" disabled>선택하세요</option>
                     <option value="both">후불 + 선불</option>
                     <option value="postpaid">후불만</option>
                     <option value="prepaid">선불만</option>

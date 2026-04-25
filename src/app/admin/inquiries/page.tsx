@@ -112,8 +112,11 @@ export default function AdminInquiriesPage() {
 
         {modal && (
           <div className={styles.overlay} onClick={() => setModal(null)}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-              <h2 className={styles.modalTitle}>문의 상세 / 답변</h2>
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) { e.preventDefault(); handleReply(); } }}>
+              <div className={styles.modalHeader}>
+                <h2 className={styles.modalTitle}>문의 상세 / 답변</h2>
+                <button className={styles.modalClose} onClick={() => setModal(null)}>✕</button>
+              </div>
               <div style={{ background: "var(--surface-1)", borderRadius: 12, padding: 16, marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 4 }}>{modal.name} · {modal.phone} · {modal.created_at?.slice(0, 10)}</div>
                 <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: "var(--text-0)" }}>{modal.title}</div>

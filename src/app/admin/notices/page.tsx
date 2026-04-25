@@ -113,8 +113,11 @@ export default function AdminNoticesPage() {
 
         {modal && (
           <div className={styles.overlay} onClick={() => setModal(null)}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-              <h2 className={styles.modalTitle}>{modal === "create" ? "공지 작성" : "공지 수정"}</h2>
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === "Enter" && e.ctrlKey) { e.preventDefault(); handleSave(); } }}>
+              <div className={styles.modalHeader}>
+                <h2 className={styles.modalTitle}>{modal === "create" ? "공지 작성" : "공지 수정"}</h2>
+                <button className={styles.modalClose} onClick={() => setModal(null)}>✕</button>
+              </div>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>제목</label>
                 <input className={styles.formInput} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="공지 제목" />

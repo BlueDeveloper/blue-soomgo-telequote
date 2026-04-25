@@ -205,8 +205,11 @@ function PlansContent() {
         {/* Modal */}
         {modal && (
           <div className={styles.overlay} onClick={() => setModal(null)}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-              <h2 className={styles.modalTitle}>{modal === "create" ? "요금제 추가" : "요금제 수정"}</h2>
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSave(); } }}>
+              <div className={styles.modalHeader}>
+                <h2 className={styles.modalTitle}>{modal === "create" ? "요금제 추가" : "요금제 수정"}</h2>
+                <button className={styles.modalClose} onClick={() => setModal(null)}>✕</button>
+              </div>
 
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>요금제명</label>
@@ -232,6 +235,7 @@ function PlansContent() {
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>유형</label>
                   <select className={styles.formSelect} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as "postpaid" | "prepaid" })}>
+                    <option value="" disabled>선택하세요</option>
                     <option value="postpaid">후불</option>
                     <option value="prepaid">선불</option>
                   </select>

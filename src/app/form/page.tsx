@@ -29,7 +29,7 @@ function FormContent() {
   // 신청서 정보
   const [formData, setFormData] = useState({
     usimSerial: "",
-    customerType: "개인" as string,
+    customerType: "" as string,
     contactNumber: "",
     subscriberName: "",
     birthDate: "",
@@ -37,7 +37,7 @@ function FormContent() {
     nationality: "대한민국",
     address: "",
     addressDetail: "",
-    activationType: "신규가입" as string,
+    activationType: "" as string,
     desiredNumber: "",
     storeName: "",
   });
@@ -357,11 +357,12 @@ function FormContent() {
                   <div className={styles.fieldGroup}>
                     <label className={styles.fieldLabel}>고객유형<span className={styles.fieldRequired}>*</span></label>
                     <select className={styles.select} value={formData.customerType} onChange={(e) => setFormData({ ...formData, customerType: e.target.value })}>
-                      <option>개인</option>
-                      <option>외국인</option>
-                      <option>청소년</option>
-                      <option>개인사업자</option>
-                      <option>법인사업자</option>
+                      <option value="" disabled>선택하세요</option>
+                      <option value="개인">개인</option>
+                      <option value="외국인">외국인</option>
+                      <option value="청소년">청소년</option>
+                      <option value="개인사업자">개인사업자</option>
+                      <option value="법인사업자">법인사업자</option>
                     </select>
                   </div>
                 </div>
@@ -396,9 +397,10 @@ function FormContent() {
                   <div className={styles.fieldGroup}>
                     <label className={styles.fieldLabel}>개통구분</label>
                     <select className={styles.select} value={formData.activationType} onChange={(e) => setFormData({ ...formData, activationType: e.target.value })}>
-                      <option>신규가입</option>
-                      <option>번호이동</option>
-                      <option>기기변경</option>
+                      <option value="" disabled>선택하세요</option>
+                      <option value="신규가입">신규가입</option>
+                      <option value="번호이동">번호이동</option>
+                      <option value="기기변경">기기변경</option>
                     </select>
                   </div>
                 </div>

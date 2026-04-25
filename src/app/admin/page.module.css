@@ -345,12 +345,38 @@
 
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
 .modalTitle {
   font-size: 22px;
   font-weight: 900;
   color: var(--text-0);
-  margin-bottom: 28px;
   letter-spacing: -0.3px;
+  margin: 0;
+}
+
+.modalClose {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 18px;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.modalClose:hover {
+  background: #F1F5F9;
+  color: var(--text-0);
 }
 
 .formGroup { margin-bottom: 18px; }
