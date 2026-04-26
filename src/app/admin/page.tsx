@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
 
     if (res.ok && res.data) {
       sessionStorage.setItem("admin_token", res.data.token);
-      router.push("/admin/carriers");
+      router.push("/admin/dashboard");
     } else {
       setError(res.error || "로그인에 실패했습니다");
     }

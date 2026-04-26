@@ -178,3 +178,11 @@ section, footer, main {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 }
+
+/* Print: hide header and non-essential elements */
+@media print {
+  body::before { display: none !important; }
+  header { display: none !important; }
+  nav { display: none !important; }
+  footer { display: none !important; }
+}

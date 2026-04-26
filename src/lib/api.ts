@@ -193,6 +193,12 @@ export async function searchMyInquiries(name: string, email: string): Promise<In
   return res.data || [];
 }
 
+// Dashboard
+export async function fetchDashboard(): Promise<Record<string, unknown>> {
+  const res = await request<Record<string, unknown>>("/api/admin/dashboard");
+  return res.data || {};
+}
+
 // Applications
 export async function fetchApplications(): Promise<Application[]> {
   const res = await request<Application[]>("/api/applications");

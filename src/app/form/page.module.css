@@ -579,3 +579,100 @@
 .planCardItemValue { font-size: 13px; color: var(--text-1); font-weight: 500; }
 .planCardPrice { color: var(--brand); font-family: var(--font-mono); font-weight: 700; }
 .planCardDiscount { color: var(--danger); font-family: var(--font-mono); font-weight: 700; }
+
+/* ===== Print-only form ===== */
+.printOnly {
+  display: none;
+}
+
+@media print {
+  /* Hide everything except print form */
+  .page > .container > .formCard,
+  .progress,
+  .completeActions,
+  .completeIcon,
+  .complete h2,
+  .complete p {
+    display: none !important;
+  }
+
+  .page {
+    padding: 0 !important;
+    background: white !important;
+    min-height: auto !important;
+  }
+
+  .container {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .printOnly {
+    display: block !important;
+    padding: 40px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  .printHeader {
+    text-align: center;
+    margin-bottom: 28px;
+    border-bottom: 3px solid #000;
+    padding-bottom: 16px;
+  }
+
+  .printHeader h1 {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+
+  .printHeader p {
+    font-size: 13px;
+    color: #666;
+  }
+
+  .printTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 32px;
+  }
+
+  .printTable td {
+    border: 1px solid #333;
+    padding: 10px 14px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  .printLabel {
+    background: #F3F4F6;
+    font-weight: 700;
+    width: 120px;
+    font-size: 12px;
+    color: #333;
+  }
+
+  .printSignature {
+    margin-top: 40px;
+    text-align: center;
+  }
+
+  .printSignature p {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .printSignRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 0 40px;
+  }
+
+  .printFooter {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 10px;
+    color: #999;
+  }
+}

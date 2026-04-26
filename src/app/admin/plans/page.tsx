@@ -130,6 +130,7 @@ function PlansContent() {
       <aside className={styles.sidebar}>
         <div className={styles.sidebarLogo}><span className={styles.sidebarLogoIcon}>H</span>관리자</div>
         <nav className={styles.sidebarNav}>
+          <Link href="/admin/dashboard" className={styles.sidebarLink}>📊 대시보드</Link>
           <Link href="/admin/carriers" className={styles.sidebarLink}>📱 통신사</Link>
           <span className={`${styles.sidebarLink} ${styles.sidebarLinkActive}`}>💰 요금제</span>
           <Link href="/admin/notices" className={styles.sidebarLink}>📢 공지사항</Link>
@@ -140,6 +141,7 @@ function PlansContent() {
 
       {/* Mobile Bottom Tab */}
       <nav className={styles.bottomTab}>
+          <Link href="/admin/dashboard" className={styles.tabLink}><span className={styles.tabIcon}>📊</span><span className={styles.tabLabel}>대시보드</span></Link>
         <Link href="/admin/carriers" className={styles.tabLink}><span className={styles.tabIcon}>📱</span><span className={styles.tabLabel}>통신사</span></Link>
         <Link href="/admin/plans" className={`${styles.tabLink} ${styles.tabLinkActive}`}><span className={styles.tabIcon}>💰</span><span className={styles.tabLabel}>요금제</span></Link>
         <Link href="/admin/applications" className={styles.tabLink}><span className={styles.tabIcon}>📋</span><span className={styles.tabLabel}>신청서</span></Link>
