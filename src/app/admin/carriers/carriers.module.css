@@ -7,7 +7,7 @@
 
 /* 좌측 대분류 패널 */
 .mnoPanel {
-  width: 260px;
+  width: 200px;
   flex-shrink: 0;
   background: white;
   border-radius: 16px;

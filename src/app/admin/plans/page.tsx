@@ -18,6 +18,7 @@ function PlansContent() {
   const [filterType, setFilterType] = useState<string>("");
   const [filterSearch, setFilterSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set());
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<Plan | null>(null);
   const [form, setForm] = useState({
@@ -88,10 +89,30 @@ function PlansContent() {
     loadPlans();
   };
 
-  const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`"${name}" 요금제를 삭제합니다.`)) return;
-    await deletePlan(id);
+  const handleBulkDelete = async () => {
+    if (checkedIds.size === 0) { alert("삭제할 요금제를 선택해주세요."); return; }
+    if (!confirm(`${checkedIds.size}건의 요금제를 삭제합니다.`)) return;
+    for (const id of checkedIds) {
+      await deletePlan(id);
+    }
+    setCheckedIds(new Set());
     loadPlans();
+  };
+
+  const toggleCheck = (id: number) => {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleCheckAll = () => {
+    if (checkedIds.size === filteredPlans.length) {
+      setCheckedIds(new Set());
+    } else {
+      setCheckedIds(new Set(filteredPlans.map((p) => p.id)));
+    }
   };
 
   const handleLogout = () => {
@@ -177,17 +198,26 @@ function PlansContent() {
           <div className={styles.empty}>{filterSearch || filterType ? "검색 결과가 없습니다." : `${carrierName}에 등록된 요금제가 없습니다.`}</div>
         ) : (
           <>
+            {/* 일괄 삭제 바 */}
+            {checkedIds.size > 0 && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", marginBottom: 12, background: "#FEF2F2", borderRadius: 12, border: "1px solid #FECACA" }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#DC2626" }}>{checkedIds.size}건 선택됨</span>
+                <button onClick={handleBulkDelete} style={{ padding: "8px 16px", background: "#DC2626", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>선택 삭제</button>
+              </div>
+            )}
+
             {/* Desktop Table */}
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>순서</th><th>요금제명</th><th>월납부금액</th><th>기본료</th><th>할인</th><th>유형</th><th>데이터</th><th>음성</th><th>상태</th><th>관리</th>
+                  <th style={{ width: 40 }}><input type="checkbox" checked={checkedIds.size === filteredPlans.length && filteredPlans.length > 0} onChange={toggleCheckAll} /></th>
+                  <th>요금제명</th><th>월납부금액</th><th>기본료</th><th>할인</th><th>유형</th><th>데이터</th><th>음성</th><th>상태</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredPlans.map((p) => (
-                  <tr key={p.id}>
-                    <td>{p.sort_order}</td>
+                  <tr key={p.id} onClick={() => openEdit(p)} style={{ cursor: "pointer" }}>
+                    <td onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={checkedIds.has(p.id)} onChange={() => toggleCheck(p.id)} /></td>
                     <td style={{ fontWeight: 600 }}>{p.name}</td>
                     <td style={{ fontFamily: "var(--font-mono)" }}>{fmt(p.monthly)}</td>
                     <td style={{ fontFamily: "var(--font-mono)" }}>{fmt(p.base_fee)}</td>
@@ -196,12 +226,6 @@ function PlansContent() {
                     <td>{p.data}</td>
                     <td>{p.voice}</td>
                     <td>{p.is_active ? "✅" : "❌"}</td>
-                    <td>
-                      <div className={styles.tableActions}>
-                        <button className={styles.editBtn} onClick={() => openEdit(p)}>수정</button>
-                        <button className={styles.deleteBtn} onClick={() => handleDelete(p.id, p.name)}>삭제</button>
-                      </div>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -210,9 +234,12 @@ function PlansContent() {
             {/* Mobile Cards */}
             <div className={styles.cardList}>
               {filteredPlans.map((p) => (
-                <div key={p.id} className={styles.card}>
+                <div key={p.id} className={styles.card} onClick={() => openEdit(p)} style={{ cursor: "pointer" }}>
                   <div className={styles.cardHeader}>
-                    <div className={styles.cardTitle}>{p.name}</div>
+                    <div className={styles.cardTitle} style={{ gap: 8 }}>
+                      <input type="checkbox" checked={checkedIds.has(p.id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleCheck(p.id)} />
+                      {p.name}
+                    </div>
                     <span className={`${styles.cardBadge} ${p.is_active ? styles.cardBadgeActive : styles.cardBadgeInactive}`}>
                       {p.type === "postpaid" ? "후불" : "선불"}
                     </span>
@@ -234,10 +261,6 @@ function PlansContent() {
                       <span className={styles.cardFieldLabel}>음성</span>
                       <span className={styles.cardFieldValue}>{p.voice}</span>
                     </div>
-                  </div>
-                  <div className={styles.cardActions}>
-                    <button className={styles.cardEditBtn} onClick={() => openEdit(p)}>수정</button>
-                    <button className={styles.cardDeleteBtn} onClick={() => handleDelete(p.id, p.name)}>삭제</button>
                   </div>
                 </div>
               ))}

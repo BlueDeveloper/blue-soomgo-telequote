@@ -126,7 +126,28 @@ export default function AdminNoticesPage() {
               </div>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>내용</label>
-                <textarea className={styles.formInput} rows={8} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="공지 내용" style={{ resize: "vertical", minHeight: 150 }} />
+                <div style={{ border: "2px solid #E8ECF1", borderRadius: 12, overflow: "hidden" }}>
+                  <div style={{ display: "flex", gap: 2, padding: "6px 8px", background: "#F8FAFC", borderBottom: "1px solid #E8ECF1", flexWrap: "wrap" }}>
+                    {[
+                      { cmd: "bold", icon: "B", style: { fontWeight: 800 } },
+                      { cmd: "italic", icon: "I", style: { fontStyle: "italic" } },
+                      { cmd: "underline", icon: "U", style: { textDecoration: "underline" } },
+                      { cmd: "strikeThrough", icon: "S", style: { textDecoration: "line-through" } },
+                    ].map((b) => (
+                      <button key={b.cmd} type="button" onClick={() => document.execCommand(b.cmd)} style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid #E2E8F0", background: "white", cursor: "pointer", fontSize: 14, ...b.style }}>{b.icon}</button>
+                    ))}
+                    <span style={{ width: 1, background: "#E2E8F0", margin: "2px 4px" }} />
+                    <button type="button" onClick={() => document.execCommand("insertUnorderedList")} style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid #E2E8F0", background: "white", cursor: "pointer", fontSize: 13 }}>•</button>
+                    <button type="button" onClick={() => document.execCommand("insertOrderedList")} style={{ width: 32, height: 32, borderRadius: 6, border: "1px solid #E2E8F0", background: "white", cursor: "pointer", fontSize: 13 }}>1.</button>
+                  </div>
+                  <div
+                    contentEditable
+                    suppressContentEditableWarning
+                    dangerouslySetInnerHTML={{ __html: form.content }}
+                    onBlur={(e) => setForm({ ...form, content: e.currentTarget.innerHTML })}
+                    style={{ minHeight: 200, padding: "14px 16px", outline: "none", fontSize: 14, lineHeight: 1.7, color: "var(--text-0)" }}
+                  />
+                </div>
               </div>
               <div className={styles.formGroup}>
                 <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>

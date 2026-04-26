@@ -36,9 +36,10 @@ export default function NoticesPage() {
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-3)" }}>{n.created_at?.slice(0, 10)}</div>
                   {selected?.id === n.id && (
-                    <div style={{ marginTop: 12, padding: "14px 0 4px", borderTop: "1px solid var(--border-light)", fontSize: 14, color: "var(--text-1)", whiteSpace: "pre-wrap", lineHeight: 1.7 }}>
-                      {n.content}
-                    </div>
+                    <div
+                      style={{ marginTop: 12, padding: "14px 0 4px", borderTop: "1px solid var(--border-light)", fontSize: 14, color: "var(--text-1)", lineHeight: 1.7 }}
+                      dangerouslySetInnerHTML={{ __html: n.content }}
+                    />
                   )}
                 </div>
               ))}
