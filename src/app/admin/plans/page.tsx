@@ -128,7 +128,7 @@ function PlansContent() {
     <div className={styles.adminLayout}>
       {/* Desktop Sidebar */}
       <aside className={styles.sidebar}>
-        <div className={styles.sidebarLogo}><span className={styles.sidebarLogoIcon}>H</span>관리자</div>
+        <a href="/" className={styles.sidebarLogo} style={{textDecoration:"none",color:"inherit"}}><span className={styles.sidebarLogoIcon}>H</span>관리자</a>
         <nav className={styles.sidebarNav}>
           <Link href="/admin/dashboard" className={styles.sidebarLink}>📊 대시보드</Link>
           <Link href="/admin/carriers" className={styles.sidebarLink}>📱 통신사</Link>
