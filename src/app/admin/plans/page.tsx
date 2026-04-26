@@ -15,6 +15,8 @@ function PlansContent() {
   const [tree, setTree] = useState<Carrier[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedCarrier, setSelectedCarrier] = useState(carrierId);
+  const [filterType, setFilterType] = useState<string>("");
+  const [filterSearch, setFilterSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<Plan | null>(null);
@@ -47,7 +49,14 @@ function PlansContent() {
   useEffect(() => { loadCarriers(); }, [loadCarriers]);
   useEffect(() => { loadPlans(); }, [loadPlans]);
 
-  const carrierName = tree.flatMap(m => m.children || []).find((c) => c.id === selectedCarrier)?.title || selectedCarrier;
+  const allMvnos = tree.flatMap(m => m.children || []);
+  const carrierName = allMvnos.find((c) => c.id === selectedCarrier)?.title || selectedCarrier;
+
+  const filteredPlans = plans.filter((p) => {
+    if (filterType && p.type !== filterType) return false;
+    if (filterSearch && !p.name.toLowerCase().includes(filterSearch.toLowerCase())) return false;
+    return true;
+  });
 
   const openCreate = () => {
     setForm({ name: "", monthly: 0, base_fee: 0, discount: 0, voice: "", sms: "", data: "", qos: "-", type: "", sort_order: plans.length + 1 });
@@ -116,30 +125,56 @@ function PlansContent() {
 
       <main className={styles.main}>
         <div className={styles.pageHeader}>
-          <div>
-            <h1 className={styles.pageTitle}>요금제 관리</h1>
+          <h1 className={styles.pageTitle}>요금제 관리</h1>
+          <button className={styles.addBtn} onClick={openCreate}>+ 추가</button>
+        </div>
+
+        {/* 필터 영역 */}
+        <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap", alignItems: "flex-end" }}>
+          <div style={{ flex: "1 1 200px" }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--text-3)", marginBottom: 4, fontFamily: "var(--font-mono)" }}>통신사</label>
             <select
-              style={{ marginTop: 8, padding: "8px 12px", border: "1px solid var(--border)", borderRadius: 8, fontSize: 14, fontFamily: "inherit", width: "100%" }}
+              style={{ width: "100%", padding: "10px 14px", border: "2px solid #E8ECF1", borderRadius: 12, fontSize: 14, fontFamily: "inherit", background: "white" }}
               value={selectedCarrier}
               onChange={(e) => setSelectedCarrier(e.target.value)}
             >
               <option value="" disabled>선택하세요</option>
-              {tree.map((mno) => (
-                <optgroup key={mno.id} label={mno.title}>
-                  {(mno.children || []).map((mvno) => (
-                    <option key={mvno.id} value={mvno.id}>{mvno.title}</option>
-                  ))}
-                </optgroup>
+              {allMvnos.map((mvno) => (
+                <option key={mvno.id} value={mvno.id}>{mvno.title}</option>
               ))}
             </select>
           </div>
-          <button className={styles.addBtn} onClick={openCreate}>+ 추가</button>
+          <div style={{ flex: "0 0 140px" }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--text-3)", marginBottom: 4, fontFamily: "var(--font-mono)" }}>유형</label>
+            <select
+              style={{ width: "100%", padding: "10px 14px", border: "2px solid #E8ECF1", borderRadius: 12, fontSize: 14, fontFamily: "inherit", background: "white" }}
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <option value="">전체</option>
+              <option value="postpaid">후불</option>
+              <option value="prepaid">선불</option>
+            </select>
+          </div>
+          <div style={{ flex: "1 1 200px" }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--text-3)", marginBottom: 4, fontFamily: "var(--font-mono)" }}>검색</label>
+            <input
+              type="text"
+              placeholder="요금제명 검색"
+              value={filterSearch}
+              onChange={(e) => setFilterSearch(e.target.value)}
+              style={{ width: "100%", padding: "10px 14px", border: "2px solid #E8ECF1", borderRadius: 12, fontSize: 14, fontFamily: "inherit", outline: "none" }}
+            />
+          </div>
+          <div style={{ fontSize: 13, color: "var(--text-3)", padding: "10px 0" }}>
+            {filteredPlans.length}건
+          </div>
         </div>
 
         {loading ? (
           <div className={styles.empty}>불러오는 중...</div>
-        ) : plans.length === 0 ? (
-          <div className={styles.empty}>{carrierName}에 등록된 요금제가 없습니다.</div>
+        ) : filteredPlans.length === 0 ? (
+          <div className={styles.empty}>{filterSearch || filterType ? "검색 결과가 없습니다." : `${carrierName}에 등록된 요금제가 없습니다.`}</div>
         ) : (
           <>
             {/* Desktop Table */}
@@ -150,7 +185,7 @@ function PlansContent() {
                 </tr>
               </thead>
               <tbody>
-                {plans.map((p) => (
+                {filteredPlans.map((p) => (
                   <tr key={p.id}>
                     <td>{p.sort_order}</td>
                     <td style={{ fontWeight: 600 }}>{p.name}</td>
@@ -174,7 +209,7 @@ function PlansContent() {
 
             {/* Mobile Cards */}
             <div className={styles.cardList}>
-              {plans.map((p) => (
+              {filteredPlans.map((p) => (
                 <div key={p.id} className={styles.card}>
                   <div className={styles.cardHeader}>
                     <div className={styles.cardTitle}>{p.name}</div>
