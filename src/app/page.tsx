@@ -117,19 +117,18 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* 알뜰폰 그리드 */}
-              <div className={styles.serviceGrid}>
+              {/* 알뜰폰 그리드 — 이미지만 */}
+              <div className={styles.mvnoGrid}>
                 {mvnoList.length === 0 ? (
                   <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: 40, color: "var(--text-3)" }}>등록된 알뜰폰이 없습니다.</div>
                 ) : (
                   mvnoList.map((c, ci) => (
-                    <Link key={c.id} href={`/form?carrier=${encodeURIComponent(c.id)}`} className={`${styles.serviceCard} fadeIn`} style={{ animationDelay: `${ci * 0.04}s` }}>
-                      <div className={`${styles.serviceIcon} ${styles[c.icon_style] || styles.serviceIconBlue}`}>
-                        {isImg(c.icon) ? <img src={c.icon} alt={c.title} style={{ width: 28, height: 28, objectFit: "contain" }} /> : c.icon}
-                      </div>
-                      <h3>{c.title}</h3>
-                      <p>{c.description}</p>
-                      <div className={styles.servicePrice}>{c.forms}</div>
+                    <Link key={c.id} href={`/form?carrier=${encodeURIComponent(c.id)}`} className={`${styles.mvnoCard} fadeIn`} style={{ animationDelay: `${ci * 0.04}s` }}>
+                      {isImg(c.icon) ? (
+                        <img src={c.icon} alt={c.title} className={styles.mvnoImg} />
+                      ) : (
+                        <span className={styles.mvnoEmoji}>{c.icon}</span>
+                      )}
                     </Link>
                   ))
                 )}

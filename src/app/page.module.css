@@ -345,6 +345,41 @@
   color: white;
 }
 
+/* MVNO Grid — image only */
+.mvnoGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.mvnoCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 16px;
+  transition: all 0.2s;
+  aspect-ratio: 16/9;
+}
+
+.mvnoCard:hover {
+  border-color: var(--brand);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.mvnoImg {
+  max-width: 80%;
+  max-height: 48px;
+  object-fit: contain;
+}
+
+.mvnoEmoji {
+  font-size: 36px;
+}
+
 .sectionDesc {
   font-size: 16px;
   color: var(--text-2);
@@ -890,6 +925,9 @@
 
   .mnoTabs { gap: 6px; }
   .mnoTab { padding: 10px 16px; font-size: 14px; }
+  .mvnoGrid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .mvnoCard { padding: 16px 12px; }
+  .mvnoImg { max-height: 36px; }
 
   .infoSection { padding: 48px 20px; }
   .infoInner { grid-template-columns: 1fr; }
