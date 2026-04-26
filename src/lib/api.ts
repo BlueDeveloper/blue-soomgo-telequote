@@ -184,3 +184,11 @@ export async function replyInquiry(id: number, reply: string): Promise<ApiRespon
 export async function deleteInquiry(id: number): Promise<ApiResponse<void>> {
   return request(`/api/inquiries/${id}`, { method: "DELETE" });
 }
+
+// Crawl
+export async function crawlPlans(carrierId: string, pages = 3): Promise<ApiResponse<{ carrier: string; imported: number; skipped: number; errors: string[] }>> {
+  return request("/api/admin/crawl", {
+    method: "POST",
+    body: JSON.stringify({ carrierId, pages }),
+  });
+}

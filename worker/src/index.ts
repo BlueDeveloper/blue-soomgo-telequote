@@ -5,6 +5,7 @@ import { handlePlans } from "./plans";
 import { handleUpload, handleR2Get } from "./upload";
 import { handleNotices } from "./notices";
 import { handleInquiries } from "./inquiries";
+import { handleCrawl } from "./crawl";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -26,6 +27,8 @@ export default {
         response = await handleR2Get(request, env, path);
       } else if (path.startsWith("/api/carriers")) {
         response = await handleCarriers(request, env, path);
+      } else if (path === "/api/admin/crawl") {
+        response = await handleCrawl(request, env);
       } else if (path.startsWith("/api/plans")) {
         response = await handlePlans(request, env, path);
       } else if (path.startsWith("/api/notices")) {
