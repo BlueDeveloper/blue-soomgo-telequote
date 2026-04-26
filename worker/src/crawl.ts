@@ -97,11 +97,41 @@ export async function handleCrawl(request: Request, env: Env): Promise<Response>
     const allPlans = parsePlansFromHtml(html);
 
     // 해당 통신사 브랜드명과 매칭되는 요금제만 필터
-    const carrierTitle = (carrier.title as string).toLowerCase();
-    const matched = allPlans.filter((p) =>
-      p.mvno.toLowerCase().includes(carrierTitle) ||
-      carrierTitle.includes(p.mvno.toLowerCase())
-    );
+    // 부분 일치, 약어, 공백 제거 후 비교
+    const normalize = (s: string) => s.toLowerCase().replace(/[\s+\-_()（）]/g, "");
+    const carrierNorm = normalize(carrier.title as string);
+
+    // 매칭 별칭 테이블
+    const aliases: Record<string, string[]> = {
+      "헬로모바일": ["lg헬로모바일", "헬로", "hello"],
+      "u+u모바일": ["u+유모바일", "유모바일", "umobile"],
+      "smt(스마텔)": ["스마텔", "smt", "smartel"],
+      "sk7mobile": ["sk7", "sk세븐"],
+      "ktm모바일": ["ktm", "ktmmobile"],
+      "kt스카이라이프": ["스카이라이프", "skylife"],
+      "토스모바일": ["토스", "toss"],
+      "모빙": ["mobing"],
+      "슈가모바일": ["슈가", "sugar"],
+      "이야기모바일": ["이야기", "eyagi"],
+      "코드모바일": ["코드", "code"],
+      "ins모바일": ["ins", "insmobile"],
+      "한패스모바일": ["한패스", "hanpass"],
+      "프리티": ["프리티", "freeti", "freet"],
+    };
+
+    const matched = allPlans.filter((p) => {
+      const mvnoNorm = normalize(p.mvno);
+      // 직접 매칭
+      if (mvnoNorm.includes(carrierNorm) || carrierNorm.includes(mvnoNorm)) return true;
+      // 별칭 매칭
+      for (const [key, vals] of Object.entries(aliases)) {
+        const keyNorm = normalize(key);
+        if (carrierNorm.includes(keyNorm) || keyNorm.includes(carrierNorm)) {
+          if (vals.some((v) => mvnoNorm.includes(normalize(v)) || normalize(v).includes(mvnoNorm))) return true;
+        }
+      }
+      return false;
+    });
 
     if (matched.length === 0) {
       // 정확 매칭 실패 시 전체 목록 반환 (관리자가 선택)
