@@ -461,11 +461,37 @@ function FormContent() {
 
                 <div className={styles.fieldGroup}>
                   <label className={styles.fieldLabel}>주소</label>
-                  <input type="text" className={styles.input} placeholder="주소" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input type="text" className={styles.input} placeholder="주소 검색을 눌러주세요" value={formData.address} readOnly style={{ flex: 1, cursor: "pointer", background: "#F8FAFC" }} onClick={() => {
+                      if (typeof window !== "undefined") {
+                        const script = document.getElementById("daum-postcode");
+                        const run = () => {
+                          new (window as unknown as Record<string, unknown> & { daum: { Postcode: new (opts: Record<string, unknown>) => { open: () => void } } }).daum.Postcode({
+                            oncomplete: (data: { address: string; zonecode: string }) => {
+                              setFormData((prev) => ({ ...prev, address: `(${data.zonecode}) ${data.address}` }));
+                            },
+                          }).open();
+                        };
+                        if (script) { run(); } else {
+                          const s = document.createElement("script");
+                          s.id = "daum-postcode";
+                          s.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+                          s.onload = run;
+                          document.head.appendChild(s);
+                        }
+                      }
+                    }} />
+                    <button type="button" onClick={() => {
+                      const el = document.querySelector<HTMLInputElement>(`input[placeholder="주소 검색을 눌러주세요"]`);
+                      el?.click();
+                    }} style={{ padding: "0 20px", background: "var(--brand)", color: "white", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+                      주소 검색
+                    </button>
+                  </div>
                 </div>
                 <div className={styles.fieldGroup}>
                   <label className={styles.fieldLabel}>상세주소</label>
-                  <input type="text" className={styles.input} placeholder="상세주소" value={formData.addressDetail} onChange={(e) => setFormData({ ...formData, addressDetail: e.target.value })} />
+                  <input type="text" className={styles.input} placeholder="상세주소를 입력하세요" value={formData.addressDetail} onChange={(e) => setFormData({ ...formData, addressDetail: e.target.value })} />
                 </div>
 
                 <div className={styles.fieldRow}>
