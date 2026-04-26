@@ -4,13 +4,16 @@ import { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
+import { useToast } from "@/components/Toast";
 import { fetchCarrierTree, fetchPlans } from "@/lib/api";
+import { formatPhone, isValidBirth } from "@/lib/utils";
 import type { Carrier, Plan } from "@/types";
 import styles from "./page.module.css";
 
 const TOTAL_STEPS = 5; // 대분류 → 알뜰폰 → 요금제 → 정보 → 확인
 
 function FormContent() {
+  const { toast } = useToast();
   const searchParams = useSearchParams();
   const initialCarrier = searchParams.get("carrier") || "";
 
@@ -93,15 +96,16 @@ function FormContent() {
 
   const handleNext = () => {
     switch (step) {
-      case 1: if (!selectedMno) { alert("통신망을 선택해주세요."); return; } break;
-      case 2: if (!selectedCarrier) { alert("알뜰폰 통신사를 선택해주세요."); return; } break;
-      case 3: if (!selectedPlan) { alert("요금제를 선택해주세요."); return; } break;
+      case 1: if (!selectedMno) { toast("통신망을 선택해주세요.", "error"); return; } break;
+      case 2: if (!selectedCarrier) { toast("알뜰폰 통신사를 선택해주세요.", "error"); return; } break;
+      case 3: if (!selectedPlan) { toast("요금제를 선택해주세요.", "error"); return; } break;
       case 4:
-        if (!formData.subscriberName.trim()) { alert("가입자명을 입력해주세요."); return; }
-        if (!formData.contactNumber.trim()) { alert("개통번호 연락번호를 입력해주세요."); return; }
-        if (!formData.birthDate.trim()) { alert("생년월일을 입력해주세요."); return; }
-        if (!formData.customerType) { alert("고객유형을 선택해주세요."); return; }
-        if (!formData.activationType) { alert("개통구분을 선택해주세요."); return; }
+        if (!formData.subscriberName.trim()) { toast("가입자명을 입력해주세요.", "error"); return; }
+        if (!formData.contactNumber.trim()) { toast("개통번호 연락번호를 입력해주세요.", "error"); return; }
+        if (!formData.birthDate.trim()) { toast("생년월일을 입력해주세요.", "error"); return; }
+        if (!isValidBirth(formData.birthDate.replace(/[^0-9]/g, ""))) { toast("생년월일 형식이 올바르지 않습니다. (YYYYMMDD)", "error"); return; }
+        if (!formData.customerType) { toast("고객유형을 선택해주세요.", "error"); return; }
+        if (!formData.activationType) { toast("개통구분을 선택해주세요.", "error"); return; }
         break;
     }
     if (step === TOTAL_STEPS) { setSubmitted(true); return; }
@@ -386,7 +390,7 @@ function FormContent() {
                   </div>
                   <div className={styles.fieldGroup}>
                     <label className={styles.fieldLabel}>개통번호 연락번호<span className={styles.fieldRequired}>*</span></label>
-                    <input type="tel" className={styles.input} placeholder="010-0000-0000" value={formData.contactNumber} onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })} />
+                    <input type="tel" className={styles.input} placeholder="010-0000-0000" value={formData.contactNumber} onChange={(e) => setFormData({ ...formData, contactNumber: formatPhone(e.target.value) })} />
                   </div>
                 </div>
 

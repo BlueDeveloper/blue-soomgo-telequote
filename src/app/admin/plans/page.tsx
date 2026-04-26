@@ -4,10 +4,12 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchCarrierTree, fetchPlans, createPlan, updatePlan, deletePlan } from "@/lib/api";
+import { useToast } from "@/components/Toast";
 import type { Carrier, Plan } from "@/types";
 import styles from "../page.module.css";
 
 function PlansContent() {
+  const { toast } = useToast();
   const searchParams = useSearchParams();
   const carrierId = searchParams.get("carrier") || "";
   const router = useRouter();
@@ -72,16 +74,16 @@ function PlansContent() {
   };
 
   const handleSave = async () => {
-    if (!form.name.trim()) { alert("요금제명을 입력해주세요."); return; }
-    if (!form.monthly) { alert("월납부금액을 입력해주세요."); return; }
-    if (!form.type) { alert("유형을 선택해주세요."); return; }
-    if (!form.voice.trim()) { alert("음성을 입력해주세요."); return; }
-    if (!form.sms.trim()) { alert("문자를 입력해주세요."); return; }
-    if (!form.data.trim()) { alert("데이터를 입력해주세요."); return; }
+    if (!form.name.trim()) { toast("요금제명을 입력해주세요.", "error"); return; }
+    if (!form.monthly) { toast("월납부금액을 입력해주세요.", "error"); return; }
+    if (!form.type) { toast("유형을 선택해주세요.", "error"); return; }
+    if (!form.voice.trim()) { toast("음성을 입력해주세요.", "error"); return; }
+    if (!form.sms.trim()) { toast("문자를 입력해주세요.", "error"); return; }
+    if (!form.data.trim()) { toast("데이터를 입력해주세요.", "error"); return; }
 
     if (modal === "create") {
       const res = await createPlan({ carrierId: selectedCarrier, ...form, type: form.type as "postpaid" | "prepaid" });
-      if (!res.ok) { alert(res.error); return; }
+      if (!res.ok) { toast(res.error || "오류가 발생했습니다.", "error"); return; }
     } else if (modal === "edit" && editing) {
       await updatePlan(editing.id, { ...form, type: form.type as "postpaid" | "prepaid" });
     }
@@ -90,7 +92,7 @@ function PlansContent() {
   };
 
   const handleBulkDelete = async () => {
-    if (checkedIds.size === 0) { alert("삭제할 요금제를 선택해주세요."); return; }
+    if (checkedIds.size === 0) { toast("삭제할 요금제를 선택해주세요.", "error"); return; }
     if (!confirm(`${checkedIds.size}건의 요금제를 삭제합니다.`)) return;
     for (const id of checkedIds) {
       await deletePlan(id);

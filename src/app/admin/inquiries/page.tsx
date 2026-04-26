@@ -4,10 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fetchInquiries, replyInquiry, deleteInquiry } from "@/lib/api";
+import { useToast } from "@/components/Toast";
 import type { Inquiry } from "@/types";
 import styles from "../page.module.css";
 
 export default function AdminInquiriesPage() {
+  const { toast } = useToast();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set());
@@ -30,14 +32,14 @@ export default function AdminInquiriesPage() {
 
   const handleReply = async () => {
     if (!modal) return;
-    if (!reply.trim()) { alert("답변 내용을 입력해주세요."); return; }
+    if (!reply.trim()) { toast("답변 내용을 입력해주세요.", "error"); return; }
     await replyInquiry(modal.id, reply);
     setModal(null);
     load();
   };
 
   const handleBulkDelete = async () => {
-    if (checkedIds.size === 0) { alert("삭제할 문의를 선택해주세요."); return; }
+    if (checkedIds.size === 0) { toast("삭제할 문의를 선택해주세요.", "error"); return; }
     if (!confirm(`${checkedIds.size}건의 문의를 삭제합니다.`)) return;
     for (const id of checkedIds) { await deleteInquiry(id); }
     setCheckedIds(new Set());

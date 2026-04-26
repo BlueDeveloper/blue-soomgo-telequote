@@ -185,10 +185,10 @@ export async function deleteInquiry(id: number): Promise<ApiResponse<void>> {
   return request(`/api/inquiries/${id}`, { method: "DELETE" });
 }
 
-export async function searchMyInquiries(name: string, phone: string): Promise<Inquiry[]> {
+export async function searchMyInquiries(name: string, email: string): Promise<Inquiry[]> {
   const res = await request<Inquiry[]>("/api/inquiries/search", {
     method: "POST",
-    body: JSON.stringify({ name, phone }),
+    body: JSON.stringify({ name, email }),
   });
   return res.data || [];
 }

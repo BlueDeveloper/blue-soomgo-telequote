@@ -72,12 +72,12 @@ async function deleteInquiry(env: Env, id: string): Promise<Response> {
 }
 
 async function searchMyInquiries(env: Env, request: Request): Promise<Response> {
-  const { name, phone } = await request.json<{ name: string; phone: string }>();
-  if (!name || !phone) return json({ ok: false, error: "이름과 연락처를 입력해주세요" }, 400);
+  const { name, email } = await request.json<{ name: string; email: string }>();
+  if (!name || !email) return json({ ok: false, error: "이름과 이메일을 입력해주세요" }, 400);
 
   const result = await env.DB.prepare(
-    "SELECT id, title, content, reply, replied_at, created_at FROM inquiries WHERE name = ? AND phone = ? ORDER BY created_at DESC"
-  ).bind(name, phone).all();
+    "SELECT id, title, content, reply, replied_at, created_at FROM inquiries WHERE name = ? AND email = ? ORDER BY created_at DESC"
+  ).bind(name, email).all();
 
   return json({ ok: true, data: result.results });
 }

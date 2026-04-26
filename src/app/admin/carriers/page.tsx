@@ -4,11 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fetchCarrierTree, createCarrier, updateCarrier, deleteCarrier, uploadImage } from "@/lib/api";
+import { useToast } from "@/components/Toast";
 import type { Carrier } from "@/types";
 import styles from "../page.module.css";
 import cs from "./carriers.module.css";
 
 export default function CarriersPage() {
+  const { toast } = useToast();
   const [tree, setTree] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeMno, setActiveMno] = useState<string>("");
@@ -49,16 +51,16 @@ export default function CarriersPage() {
   };
 
   const handleSave = async () => {
-    if (!form.title.trim()) { alert("이름을 입력해주세요."); return; }
-    if (modal !== "edit" && !form.id.trim()) { alert("ID를 입력해주세요."); return; }
-    if ((modal === "create-mvno" || (modal === "edit" && editing?.parent_id)) && !form.paymentType) { alert("결제 방식을 선택해주세요."); return; }
+    if (!form.title.trim()) { toast("이름을 입력해주세요.", "error"); return; }
+    if (modal !== "edit" && !form.id.trim()) { toast("ID를 입력해주세요.", "error"); return; }
+    if ((modal === "create-mvno" || (modal === "edit" && editing?.parent_id)) && !form.paymentType) { toast("결제 방식을 선택해주세요.", "error"); return; }
 
     if (modal === "create-mno") {
       const res = await createCarrier({ ...form, parentId: null } as unknown as Partial<Carrier>);
-      if (!res.ok) { alert(res.error); return; }
+      if (!res.ok) { toast(res.error || "오류가 발생했습니다.", "error"); return; }
     } else if (modal === "create-mvno") {
       const res = await createCarrier({ ...form, parentId: activeMno } as unknown as Partial<Carrier>);
-      if (!res.ok) { alert(res.error); return; }
+      if (!res.ok) { toast(res.error || "오류가 발생했습니다.", "error"); return; }
     } else if (modal === "edit" && editing) {
       const { id: _id, ...rest } = form;
       await updateCarrier(editing.id, rest as unknown as Partial<Carrier>);
@@ -246,7 +248,7 @@ export default function CarriersPage() {
                       const res = await uploadImage(file);
                       setUploading(false);
                       if (res.ok && res.data) setForm({ ...form, icon: res.data.url });
-                      else alert("업로드 실패");
+                      else toast("업로드에 실패했습니다.", "error");
                     }} />
                   </label>
                   <input className={styles.formInput} value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })} placeholder="또는 URL 직접 입력" style={{ flex: 1, minWidth: 180 }} />

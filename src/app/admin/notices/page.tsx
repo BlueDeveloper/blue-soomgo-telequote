@@ -4,10 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fetchNotices, createNotice, updateNotice, deleteNotice } from "@/lib/api";
+import { useToast } from "@/components/Toast";
 import type { Notice } from "@/types";
 import styles from "../page.module.css";
 
 export default function AdminNoticesPage() {
+  const { toast } = useToast();
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set());
@@ -31,11 +33,11 @@ export default function AdminNoticesPage() {
   const openEdit = (n: Notice) => { setForm({ title: n.title, content: n.content, isPinned: !!n.is_pinned }); setEditing(n); setModal("edit"); };
 
   const handleSave = async () => {
-    if (!form.title.trim()) { alert("제목을 입력해주세요."); return; }
-    if (!form.content.trim()) { alert("내용을 입력해주세요."); return; }
+    if (!form.title.trim()) { toast("제목을 입력해주세요.", "error"); return; }
+    if (!form.content.trim()) { toast("내용을 입력해주세요.", "error"); return; }
     if (modal === "create") {
       const res = await createNotice(form);
-      if (!res.ok) { alert(res.error); return; }
+      if (!res.ok) { toast(res.error || "오류가 발생했습니다.", "error"); return; }
     } else if (editing) {
       await updateNotice(editing.id, form);
     }
@@ -44,7 +46,7 @@ export default function AdminNoticesPage() {
   };
 
   const handleBulkDelete = async () => {
-    if (checkedIds.size === 0) { alert("삭제할 공지를 선택해주세요."); return; }
+    if (checkedIds.size === 0) { toast("삭제할 공지를 선택해주세요.", "error"); return; }
     if (!confirm(`${checkedIds.size}건의 공지를 삭제합니다.`)) return;
     for (const id of checkedIds) { await deleteNotice(id); }
     setCheckedIds(new Set());
