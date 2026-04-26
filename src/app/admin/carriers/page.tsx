@@ -14,6 +14,7 @@ export default function CarriersPage() {
   const [tree, setTree] = useState<Carrier[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeMno, setActiveMno] = useState<string>("");
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [modal, setModal] = useState<"create-mno" | "create-mvno" | "edit" | null>(null);
   const [editing, setEditing] = useState<Carrier | null>(null);
   const [form, setForm] = useState({ id: "", icon: "", title: "", description: "", forms: "", sort_order: 0, paymentType: "both" as string });
@@ -68,10 +69,20 @@ export default function CarriersPage() {
     setModal(null); load();
   };
 
-  const handleDelete = async (c: Carrier) => {
-    const isMno = !c.parent_id;
-    if (!confirm(`"${c.title}" ${isMno ? "대분류와 소속 알뜰폰/요금제를 모두" : "알뜰폰과 요금제를"} 삭제합니다.`)) return;
-    await deleteCarrier(c.id); load();
+  const handleBulkDelete = async () => {
+    if (checkedIds.size === 0) { toast("삭제할 알뜰폰을 선택해주세요.", "error"); return; }
+    if (!confirm(`${checkedIds.size}건의 알뜰폰과 소속 요금제를 삭제합니다.`)) return;
+    for (const id of checkedIds) { await deleteCarrier(id); }
+    setCheckedIds(new Set());
+    load();
+  };
+
+  const toggleCheck = (id: string) => {
+    setCheckedIds((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  };
+
+  const toggleCheckAll = () => {
+    checkedIds.size === mvnoList.length ? setCheckedIds(new Set()) : setCheckedIds(new Set(mvnoList.map((m) => m.id)));
   };
 
   const handleLogout = () => { sessionStorage.removeItem("admin_token"); router.push("/admin"); };
@@ -146,51 +157,51 @@ export default function CarriersPage() {
               {mvnoList.length === 0 ? (
                 <div className={styles.empty}>등록된 알뜰폰이 없습니다.</div>
               ) : (
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>순서</th>
-                      <th>아이콘</th>
-                      <th>ID</th>
-                      <th>통신사명</th>
-                      <th>설명</th>
-                      <th>결제방식</th>
-                      <th>상태</th>
-                      <th>관리</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mvnoList.map((mvno) => (
-                      <tr key={mvno.id}>
-                        <td>{mvno.sort_order}</td>
-                        <td>{renderIcon(mvno.icon, mvno.title, 28)}</td>
-                        <td style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>{mvno.id}</td>
-                        <td style={{ fontWeight: 600 }}>{mvno.title}</td>
-                        <td>{mvno.description}</td>
-                        <td>
-                          <span className={cs.badge} data-type={mvno.payment_type}>
-                            {mvno.payment_type === "postpaid" ? "후불" : mvno.payment_type === "prepaid" ? "선불" : "후불+선불"}
-                          </span>
-                        </td>
-                        <td>{mvno.is_active ? "✅" : "❌"}</td>
-                        <td>
-                          <div className={styles.tableActions}>
-                            <button className={styles.editBtn} onClick={() => openEdit(mvno)}>수정</button>
-                            <button className={styles.deleteBtn} onClick={() => handleDelete(mvno)}>삭제</button>
-                          </div>
-                        </td>
+                <>
+                  {checkedIds.size > 0 && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", marginBottom: 12, background: "#FEF2F2", borderRadius: 12, border: "1px solid #FECACA" }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#DC2626" }}>{checkedIds.size}건 선택됨</span>
+                      <button onClick={handleBulkDelete} style={{ padding: "8px 16px", background: "#DC2626", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>선택 삭제</button>
+                    </div>
+                  )}
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th style={{ width: 40 }}><input type="checkbox" checked={checkedIds.size === mvnoList.length && mvnoList.length > 0} onChange={toggleCheckAll} /></th>
+                        <th>아이콘</th>
+                        <th>통신사명</th>
+                        <th>설명</th>
+                        <th>결제방식</th>
+                        <th>상태</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {mvnoList.map((mvno) => (
+                        <tr key={mvno.id} onClick={() => openEdit(mvno)} style={{ cursor: "pointer" }}>
+                          <td onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={checkedIds.has(mvno.id)} onChange={() => toggleCheck(mvno.id)} /></td>
+                          <td>{renderIcon(mvno.icon, mvno.title, 28)}</td>
+                          <td style={{ fontWeight: 600 }}>{mvno.title}</td>
+                          <td>{mvno.description}</td>
+                          <td>
+                            <span className={cs.badge} data-type={mvno.payment_type}>
+                              {mvno.payment_type === "postpaid" ? "후불" : mvno.payment_type === "prepaid" ? "선불" : "후불+선불"}
+                            </span>
+                          </td>
+                          <td>{mvno.is_active ? "✅" : "❌"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
               )}
 
               {/* Mobile: 카드 리스트 */}
               <div className={styles.cardList}>
                 {mvnoList.map((mvno) => (
-                  <div key={mvno.id} className={styles.card}>
+                  <div key={mvno.id} className={styles.card} onClick={() => openEdit(mvno)} style={{ cursor: "pointer" }}>
                     <div className={styles.cardHeader}>
-                      <div className={styles.cardTitle}>
+                      <div className={styles.cardTitle} style={{ gap: 8 }}>
+                        <input type="checkbox" checked={checkedIds.has(mvno.id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleCheck(mvno.id)} />
                         {renderIcon(mvno.icon, mvno.title, 24)}
                         {mvno.title}
                       </div>
@@ -201,10 +212,6 @@ export default function CarriersPage() {
                     <div className={styles.cardBody}>
                       <div className={styles.cardField}><span className={styles.cardFieldLabel}>ID</span><span className={styles.cardFieldValue}>{mvno.id}</span></div>
                       <div className={styles.cardField}><span className={styles.cardFieldLabel}>설명</span><span className={styles.cardFieldValue}>{mvno.description}</span></div>
-                    </div>
-                    <div className={styles.cardActions}>
-                      <button className={styles.cardEditBtn} onClick={() => openEdit(mvno)}>수정</button>
-                      <button className={styles.cardDeleteBtn} onClick={() => handleDelete(mvno)}>삭제</button>
                     </div>
                   </div>
                 ))}
