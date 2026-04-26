@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { fetchCarrierTree, fetchPlans, createPlan, updatePlan, deletePlan, crawlPlans } from "@/lib/api";
+import { fetchCarrierTree, fetchPlans, createPlan, updatePlan, deletePlan } from "@/lib/api";
 import type { Carrier, Plan } from "@/types";
 import styles from "../page.module.css";
 
@@ -18,8 +18,6 @@ function PlansContent() {
   const [filterType, setFilterType] = useState<string>("");
   const [filterSearch, setFilterSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [crawling, setCrawling] = useState(false);
-  const [crawlResult, setCrawlResult] = useState<string>("");
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<Plan | null>(null);
   const [form, setForm] = useState({
@@ -101,21 +99,6 @@ function PlansContent() {
     router.push("/admin");
   };
 
-  const handleCrawl = async () => {
-    if (!selectedCarrier) { alert("통신사를 선택해주세요."); return; }
-    if (!confirm(`${carrierName}의 요금제를 알뜰폰 허브(mvnohub.kr)에서 가져옵니다.\n\n가져온 데이터는 비활성 상태로 저장됩니다.`)) return;
-    setCrawling(true);
-    setCrawlResult("");
-    const res = await crawlPlans(selectedCarrier, 5);
-    setCrawling(false);
-    if (res.ok && res.data) {
-      setCrawlResult(`가져오기 완료: ${res.data.imported}건 추가, ${res.data.skipped}건 중복${res.data.errors.length > 0 ? `, ${res.data.errors.length}건 오류` : ""}`);
-      loadPlans();
-    } else {
-      setCrawlResult(`오류: ${res.error}`);
-    }
-  };
-
   const fmt = (n: number) => n.toLocaleString() + "원";
 
   return (
@@ -143,23 +126,8 @@ function PlansContent() {
       <main className={styles.main}>
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>요금제 관리</h1>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              style={{ padding: "10px 16px", background: "#F0FDF4", color: "#16A34A", border: "1px solid #BBF7D0", borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: "pointer" }}
-              onClick={handleCrawl}
-              disabled={crawling}
-            >
-              {crawling ? "가져오는 중..." : "📥 요금제 가져오기"}
-            </button>
-            <button className={styles.addBtn} onClick={openCreate}>+ 추가</button>
-          </div>
+          <button className={styles.addBtn} onClick={openCreate}>+ 추가</button>
         </div>
-
-        {crawlResult && (
-          <div style={{ padding: "12px 16px", marginBottom: 16, borderRadius: 12, fontSize: 13, fontWeight: 500, background: crawlResult.startsWith("오류") ? "#FEF2F2" : "#F0FDF4", color: crawlResult.startsWith("오류") ? "#DC2626" : "#16A34A", border: `1px solid ${crawlResult.startsWith("오류") ? "#FECACA" : "#BBF7D0"}` }}>
-            {crawlResult}
-          </div>
-        )}
 
         {/* 필터 영역 */}
         <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap", alignItems: "flex-end" }}>
