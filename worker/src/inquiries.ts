@@ -6,6 +6,9 @@ export async function handleInquiries(request: Request, env: Env, path: string):
   // 사용자: 문의 등록 (인증 불필요)
   if (request.method === "POST" && !id) return createInquiry(env, request);
 
+  // 사용자: 내 문의 조회 (이름+연락처로)
+  if (request.method === "POST" && id === "search") return searchMyInquiries(env, request);
+
   // 관리자: 목록 조회, 답변
   if (request.method === "GET") {
     const authErr = await requireAuth(request, env);
@@ -66,4 +69,15 @@ async function replyInquiry(env: Env, id: string, request: Request): Promise<Res
 async function deleteInquiry(env: Env, id: string): Promise<Response> {
   await env.DB.prepare("DELETE FROM inquiries WHERE id = ?").bind(id).run();
   return json({ ok: true });
+}
+
+async function searchMyInquiries(env: Env, request: Request): Promise<Response> {
+  const { name, phone } = await request.json<{ name: string; phone: string }>();
+  if (!name || !phone) return json({ ok: false, error: "이름과 연락처를 입력해주세요" }, 400);
+
+  const result = await env.DB.prepare(
+    "SELECT id, title, content, reply, replied_at, created_at FROM inquiries WHERE name = ? AND phone = ? ORDER BY created_at DESC"
+  ).bind(name, phone).all();
+
+  return json({ ok: true, data: result.results });
 }
