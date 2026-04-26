@@ -281,13 +281,12 @@ function FormContent() {
                       }}
                       style={{ animationDelay: `${i * 0.05}s` }}
                     >
-                      <div className={styles.carrierCardIcon}>
+                      <div className={styles.carrierCardIcon} style={{ width: "100%", height: 48, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
                         {c.icon.startsWith("http") || c.icon.startsWith("/") ? (
-                          <img src={c.icon} alt={c.title} style={{ width: 24, height: 24, objectFit: "contain" }} />
-                        ) : c.icon}
+                          <img src={c.icon} alt={c.title} style={{ maxWidth: "80%", maxHeight: 44, objectFit: "contain" }} />
+                        ) : <span style={{ fontSize: 32 }}>{c.icon}</span>}
                       </div>
                       <div className={styles.carrierCardTitle}>{c.title}</div>
-                      <div className={styles.carrierCardDesc}>{c.description}</div>
                     </div>
                   ))}
                 </div>

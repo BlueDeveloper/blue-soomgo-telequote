@@ -107,9 +107,9 @@
 }
 
 .carrierCard {
-  padding: 18px 14px;
+  padding: 20px 14px;
   border: 2px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
