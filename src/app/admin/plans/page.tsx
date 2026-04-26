@@ -103,7 +103,7 @@ function PlansContent() {
 
   const handleCrawl = async () => {
     if (!selectedCarrier) { alert("통신사를 선택해주세요."); return; }
-    if (!confirm(`${carrierName}의 요금제를 모요(moyoplan.com)에서 가져옵니다.\n\n가져온 데이터는 비활성 상태로 저장됩니다.`)) return;
+    if (!confirm(`${carrierName}의 요금제를 알뜰폰 허브(mvnohub.kr)에서 가져옵니다.\n\n가져온 데이터는 비활성 상태로 저장됩니다.`)) return;
     setCrawling(true);
     setCrawlResult("");
     const res = await crawlPlans(selectedCarrier, 5);
@@ -149,7 +149,7 @@ function PlansContent() {
               onClick={handleCrawl}
               disabled={crawling}
             >
-              {crawling ? "가져오는 중..." : "📥 모요에서 가져오기"}
+              {crawling ? "가져오는 중..." : "📥 요금제 가져오기"}
             </button>
             <button className={styles.addBtn} onClick={openCreate}>+ 추가</button>
           </div>
