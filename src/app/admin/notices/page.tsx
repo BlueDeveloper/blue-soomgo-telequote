@@ -10,6 +10,7 @@ import styles from "../page.module.css";
 export default function AdminNoticesPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set());
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<Notice | null>(null);
   const [form, setForm] = useState({ title: "", content: "", isPinned: false });
@@ -42,10 +43,20 @@ export default function AdminNoticesPage() {
     load();
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("공지사항을 삭제합니다.")) return;
-    await deleteNotice(id);
+  const handleBulkDelete = async () => {
+    if (checkedIds.size === 0) { alert("삭제할 공지를 선택해주세요."); return; }
+    if (!confirm(`${checkedIds.size}건의 공지를 삭제합니다.`)) return;
+    for (const id of checkedIds) { await deleteNotice(id); }
+    setCheckedIds(new Set());
     load();
+  };
+
+  const toggleCheck = (id: number) => {
+    setCheckedIds((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  };
+
+  const toggleCheckAll = () => {
+    checkedIds.size === notices.length ? setCheckedIds(new Set()) : setCheckedIds(new Set(notices.map((n) => n.id)));
   };
 
   const handleLogout = () => { sessionStorage.removeItem("admin_token"); router.push("/admin"); };
@@ -78,34 +89,34 @@ export default function AdminNoticesPage() {
 
         {loading ? <div className={styles.empty}>불러오는 중...</div> : notices.length === 0 ? <div className={styles.empty}>등록된 공지가 없습니다.</div> : (
           <>
+            {checkedIds.size > 0 && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", marginBottom: 12, background: "#FEF2F2", borderRadius: 12, border: "1px solid #FECACA" }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#DC2626" }}>{checkedIds.size}건 선택됨</span>
+                <button onClick={handleBulkDelete} style={{ padding: "8px 16px", background: "#DC2626", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>선택 삭제</button>
+              </div>
+            )}
             <table className={styles.table}>
-              <thead><tr><th>ID</th><th>제목</th><th>고정</th><th>작성일</th><th>관리</th></tr></thead>
+              <thead><tr><th style={{ width: 40 }}><input type="checkbox" checked={checkedIds.size === notices.length && notices.length > 0} onChange={toggleCheckAll} /></th><th>제목</th><th>고정</th><th>작성일</th></tr></thead>
               <tbody>
                 {notices.map((n) => (
-                  <tr key={n.id}>
-                    <td>{n.id}</td>
+                  <tr key={n.id} onClick={() => openEdit(n)} style={{ cursor: "pointer" }}>
+                    <td onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={checkedIds.has(n.id)} onChange={() => toggleCheck(n.id)} /></td>
                     <td style={{ fontWeight: 600 }}>{n.title}</td>
                     <td>{n.is_pinned ? "📌" : ""}</td>
                     <td style={{ fontSize: 12, color: "var(--text-3)" }}>{n.created_at?.slice(0, 10)}</td>
-                    <td><div className={styles.tableActions}>
-                      <button className={styles.editBtn} onClick={() => openEdit(n)}>수정</button>
-                      <button className={styles.deleteBtn} onClick={() => handleDelete(n.id)}>삭제</button>
-                    </div></td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <div className={styles.cardList}>
               {notices.map((n) => (
-                <div key={n.id} className={styles.card}>
+                <div key={n.id} className={styles.card} onClick={() => openEdit(n)} style={{ cursor: "pointer" }}>
                   <div className={styles.cardHeader}>
-                    <div className={styles.cardTitle}>{n.is_pinned ? "📌 " : ""}{n.title}</div>
+                    <div className={styles.cardTitle} style={{ gap: 8 }}>
+                      <input type="checkbox" checked={checkedIds.has(n.id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleCheck(n.id)} />
+                      {n.is_pinned ? "📌 " : ""}{n.title}
+                    </div>
                     <span style={{ fontSize: 11, color: "var(--text-3)" }}>{n.created_at?.slice(0, 10)}</span>
-                  </div>
-                  <div style={{ padding: "0 16px 8px", fontSize: 13, color: "var(--text-2)", whiteSpace: "pre-wrap", maxHeight: 60, overflow: "hidden" }}>{n.content}</div>
-                  <div className={styles.cardActions}>
-                    <button className={styles.cardEditBtn} onClick={() => openEdit(n)}>수정</button>
-                    <button className={styles.cardDeleteBtn} onClick={() => handleDelete(n.id)}>삭제</button>
                   </div>
                 </div>
               ))}

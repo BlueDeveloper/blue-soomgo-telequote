@@ -10,6 +10,7 @@ import styles from "../page.module.css";
 export default function AdminInquiriesPage() {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set());
   const [modal, setModal] = useState<Inquiry | null>(null);
   const [reply, setReply] = useState("");
   const router = useRouter();
@@ -35,10 +36,20 @@ export default function AdminInquiriesPage() {
     load();
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("문의를 삭제합니다.")) return;
-    await deleteInquiry(id);
+  const handleBulkDelete = async () => {
+    if (checkedIds.size === 0) { alert("삭제할 문의를 선택해주세요."); return; }
+    if (!confirm(`${checkedIds.size}건의 문의를 삭제합니다.`)) return;
+    for (const id of checkedIds) { await deleteInquiry(id); }
+    setCheckedIds(new Set());
     load();
+  };
+
+  const toggleCheck = (id: number) => {
+    setCheckedIds((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  };
+
+  const toggleCheckAll = () => {
+    checkedIds.size === inquiries.length ? setCheckedIds(new Set()) : setCheckedIds(new Set(inquiries.map((i) => i.id)));
   };
 
   const handleLogout = () => { sessionStorage.removeItem("admin_token"); router.push("/admin"); };
@@ -71,39 +82,39 @@ export default function AdminInquiriesPage() {
 
         {loading ? <div className={styles.empty}>불러오는 중...</div> : inquiries.length === 0 ? <div className={styles.empty}>문의가 없습니다.</div> : (
           <>
+            {checkedIds.size > 0 && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", marginBottom: 12, background: "#FEF2F2", borderRadius: 12, border: "1px solid #FECACA" }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#DC2626" }}>{checkedIds.size}건 선택됨</span>
+                <button onClick={handleBulkDelete} style={{ padding: "8px 16px", background: "#DC2626", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>선택 삭제</button>
+              </div>
+            )}
             <table className={styles.table}>
-              <thead><tr><th>ID</th><th>이름</th><th>제목</th><th>상태</th><th>등록일</th><th>관리</th></tr></thead>
+              <thead><tr><th style={{ width: 40 }}><input type="checkbox" checked={checkedIds.size === inquiries.length && inquiries.length > 0} onChange={toggleCheckAll} /></th><th>이름</th><th>제목</th><th>상태</th><th>등록일</th></tr></thead>
               <tbody>
                 {inquiries.map((inq) => (
-                  <tr key={inq.id}>
-                    <td>{inq.id}</td>
+                  <tr key={inq.id} onClick={() => openReply(inq)} style={{ cursor: "pointer" }}>
+                    <td onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={checkedIds.has(inq.id)} onChange={() => toggleCheck(inq.id)} /></td>
                     <td>{inq.name}</td>
                     <td style={{ fontWeight: 600 }}>{inq.title}</td>
-                    <td>{inq.reply ? <span style={{ color: "var(--success)", fontWeight: 600 }}>답변완료</span> : <span style={{ color: "var(--warning)", fontWeight: 600 }}>대기</span>}</td>
+                    <td>{inq.reply ? <span style={{ color: "#059669", fontWeight: 600 }}>답변완료</span> : <span style={{ color: "#D97706", fontWeight: 600 }}>대기</span>}</td>
                     <td style={{ fontSize: 12, color: "var(--text-3)" }}>{inq.created_at?.slice(0, 10)}</td>
-                    <td><div className={styles.tableActions}>
-                      <button className={styles.editBtn} onClick={() => openReply(inq)}>답변</button>
-                      <button className={styles.deleteBtn} onClick={() => handleDelete(inq.id)}>삭제</button>
-                    </div></td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <div className={styles.cardList}>
               {inquiries.map((inq) => (
-                <div key={inq.id} className={styles.card}>
+                <div key={inq.id} className={styles.card} onClick={() => openReply(inq)} style={{ cursor: "pointer" }}>
                   <div className={styles.cardHeader}>
-                    <div className={styles.cardTitle}>{inq.title}</div>
+                    <div className={styles.cardTitle} style={{ gap: 8 }}>
+                      <input type="checkbox" checked={checkedIds.has(inq.id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleCheck(inq.id)} />
+                      {inq.title}
+                    </div>
                     {inq.reply ? <span className={styles.cardBadge} style={{ background: "#ECFDF5", color: "#059669" }}>답변완료</span> : <span className={styles.cardBadge} style={{ background: "#FFFBEB", color: "#D97706" }}>대기</span>}
                   </div>
                   <div className={styles.cardBody}>
                     <div className={styles.cardField}><span className={styles.cardFieldLabel}>이름</span><span className={styles.cardFieldValue}>{inq.name}</span></div>
                     <div className={styles.cardField}><span className={styles.cardFieldLabel}>등록일</span><span className={styles.cardFieldValue}>{inq.created_at?.slice(0, 10)}</span></div>
-                  </div>
-                  <div style={{ padding: "4px 16px 8px", fontSize: 13, color: "var(--text-2)", whiteSpace: "pre-wrap", maxHeight: 48, overflow: "hidden" }}>{inq.content}</div>
-                  <div className={styles.cardActions}>
-                    <button className={styles.cardEditBtn} onClick={() => openReply(inq)}>답변</button>
-                    <button className={styles.cardDeleteBtn} onClick={() => handleDelete(inq.id)}>삭제</button>
                   </div>
                 </div>
               ))}
