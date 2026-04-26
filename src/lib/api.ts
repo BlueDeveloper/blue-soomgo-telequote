@@ -1,4 +1,4 @@
-import type { Carrier, Plan, Notice, Inquiry, ApiResponse } from "@/types";
+import type { Carrier, Plan, Notice, Inquiry, Application, ApiResponse } from "@/types";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "https://hlmobile-api.blueehdwp.workers.dev";
@@ -191,6 +191,20 @@ export async function searchMyInquiries(name: string, email: string): Promise<In
     body: JSON.stringify({ name, email }),
   });
   return res.data || [];
+}
+
+// Applications
+export async function fetchApplications(): Promise<Application[]> {
+  const res = await request<Application[]>("/api/applications");
+  return res.data || [];
+}
+
+export async function createApplication(data: Record<string, unknown>): Promise<ApiResponse<{ id: number }>> {
+  return request("/api/applications", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function deleteApplication(id: number): Promise<ApiResponse<void>> {
+  return request(`/api/applications/${id}`, { method: "DELETE" });
 }
 
 // Crawl

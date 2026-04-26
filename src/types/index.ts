@@ -55,6 +55,28 @@ export interface Plan {
   updated_at: string;
 }
 
+export interface Application {
+  id: number;
+  carrier_id: string;
+  carrier_name: string;
+  plan_name: string;
+  plan_monthly: number;
+  usim_serial: string;
+  customer_type: string;
+  contact_number: string;
+  subscriber_name: string;
+  birth_date: string;
+  id_number: string;
+  nationality: string;
+  address: string;
+  address_detail: string;
+  activation_type: string;
+  desired_number: string;
+  store_name: string;
+  payment_type: string;
+  created_at: string;
+}
+
 export interface ApiResponse<T> {
   ok: boolean;
   data?: T;

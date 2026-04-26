@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS applications (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  carrier_id TEXT NOT NULL,
+  carrier_name TEXT NOT NULL DEFAULT '',
+  plan_name TEXT NOT NULL DEFAULT '',
+  plan_monthly INTEGER NOT NULL DEFAULT 0,
+  usim_serial TEXT NOT NULL DEFAULT '',
+  customer_type TEXT NOT NULL DEFAULT '',
+  contact_number TEXT NOT NULL DEFAULT '',
+  subscriber_name TEXT NOT NULL DEFAULT '',
+  birth_date TEXT NOT NULL DEFAULT '',
+  id_number TEXT NOT NULL DEFAULT '',
+  nationality TEXT NOT NULL DEFAULT '',
+  address TEXT NOT NULL DEFAULT '',
+  address_detail TEXT NOT NULL DEFAULT '',
+  activation_type TEXT NOT NULL DEFAULT '',
+  desired_number TEXT NOT NULL DEFAULT '',
+  store_name TEXT NOT NULL DEFAULT '',
+  payment_type TEXT NOT NULL DEFAULT 'postpaid',
+  created_at TEXT DEFAULT (datetime('now'))
+);

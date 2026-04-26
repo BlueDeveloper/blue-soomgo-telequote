@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import { useToast } from "@/components/Toast";
-import { fetchCarrierTree, fetchPlans } from "@/lib/api";
-import { formatPhone, isValidBirth } from "@/lib/utils";
+import { fetchCarrierTree, fetchPlans, createApplication } from "@/lib/api";
+import { formatPhone, formatBirth, isValidBirth } from "@/lib/utils";
 import type { Carrier, Plan } from "@/types";
 import styles from "./page.module.css";
 
@@ -17,14 +17,14 @@ function FormContent() {
   const searchParams = useSearchParams();
   const initialCarrier = searchParams.get("carrier") || "";
 
-  const [step, setStep] = useState(initialCarrier ? 2 : 1);
+  const [step, setStep] = useState(initialCarrier ? 3 : 1);
   const [tree, setTree] = useState<Carrier[]>([]);
   const [selectedMno, setSelectedMno] = useState("");
   const [selectedCarrier, setSelectedCarrier] = useState(initialCarrier);
+  const [carrierPaymentType, setCarrierPaymentType] = useState<"postpaid" | "prepaid" | "both">("both");
 
   // 요금제
   const [paymentType, setPaymentType] = useState<"postpaid" | "prepaid">("postpaid");
-  const [planSearch, setPlanSearch] = useState("");
   const [allPlans, setAllPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [plansLoading, setPlansLoading] = useState(false);
@@ -51,10 +51,18 @@ function FormContent() {
   useEffect(() => {
     fetchCarrierTree().then((data) => {
       setTree(data);
-      // URL에서 carrier가 왔으면 대분류 자동 선택
+      // URL에서 carrier가 왔으면 대분류 자동 선택 + 요금제 탭으로
       if (initialCarrier) {
         const parent = data.find(m => m.children?.some(c => c.id === initialCarrier));
-        if (parent) setSelectedMno(parent.id);
+        if (parent) {
+          setSelectedMno(parent.id);
+          const mvno = parent.children?.find(c => c.id === initialCarrier);
+          if (mvno) {
+            const pt = mvno.payment_type || "both";
+            setCarrierPaymentType(pt);
+            setPaymentType(pt === "prepaid" ? "prepaid" : "postpaid");
+          }
+        }
       }
     }).catch(() => {});
   }, [initialCarrier]);
@@ -76,12 +84,8 @@ function FormContent() {
 
   // 필터링된 요금제
   const filteredPlans = useMemo(() => {
-    return allPlans.filter((p) => {
-      if (p.type !== paymentType) return false;
-      if (planSearch && !p.name.toLowerCase().includes(planSearch.toLowerCase())) return false;
-      return true;
-    });
-  }, [allPlans, paymentType, planSearch]);
+    return allPlans.filter((p) => p.type === paymentType);
+  }, [allPlans, paymentType]);
 
   const canProceed = () => {
     switch (step) {
@@ -94,7 +98,7 @@ function FormContent() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     switch (step) {
       case 1: if (!selectedMno) { toast("통신망을 선택해주세요.", "error"); return; } break;
       case 2: if (!selectedCarrier) { toast("알뜰폰 통신사를 선택해주세요.", "error"); return; } break;
@@ -108,7 +112,19 @@ function FormContent() {
         if (!formData.activationType) { toast("개통구분을 선택해주세요.", "error"); return; }
         break;
     }
-    if (step === TOTAL_STEPS) { setSubmitted(true); return; }
+    if (step === TOTAL_STEPS) {
+      // DB에 신청서 저장
+      await createApplication({
+        carrierId: selectedCarrier,
+        carrierName,
+        planName: selectedPlan?.name || "",
+        planMonthly: selectedPlan?.monthly || 0,
+        paymentType,
+        ...formData,
+      });
+      setSubmitted(true);
+      return;
+    }
     setStep(step + 1);
   };
 
@@ -229,7 +245,12 @@ function FormContent() {
                     <div
                       key={c.id}
                       className={`${styles.carrierCard} ${selectedCarrier === c.id ? styles.carrierCardActive : ""} fadeIn`}
-                      onClick={() => { setSelectedCarrier(c.id); setSelectedPlan(null); setAllPlans([]); }}
+                      onClick={() => {
+                        setSelectedCarrier(c.id); setSelectedPlan(null); setAllPlans([]);
+                        const pt = c.payment_type || "both";
+                        setCarrierPaymentType(pt);
+                        setPaymentType(pt === "prepaid" ? "prepaid" : "postpaid");
+                      }}
                       style={{ animationDelay: `${i * 0.05}s` }}
                     >
                       <div className={styles.carrierCardIcon}>
@@ -253,28 +274,17 @@ function FormContent() {
 
                 <div className={styles.planSection}>
 
-                  <div className={styles.paymentToggle}>
-                    <button className={`${styles.toggleBtn} ${paymentType === "postpaid" ? styles.toggleBtnActive : ""}`} onClick={() => { setPaymentType("postpaid"); setSelectedPlan(null); }}>후불</button>
-                    <button className={`${styles.toggleBtn} ${paymentType === "prepaid" ? styles.toggleBtnActive : ""}`} onClick={() => { setPaymentType("prepaid"); setSelectedPlan(null); }}>선불</button>
-                  </div>
-
-                  <div className={styles.filterRow}>
-                    <div className={styles.filterGroup}>
-                      <span className={styles.filterLabel}>통신사</span>
-                      <select className={styles.filterSelect} value={selectedCarrier} onChange={(e) => { setSelectedCarrier(e.target.value); setSelectedPlan(null); }}>
-                        <option value="" disabled>선택하세요</option>
-                        {tree.map((mno) => (
-                          <optgroup key={mno.id} label={mno.title}>
-                            {(mno.children || []).map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
-                          </optgroup>
-                        ))}
-                      </select>
+                  {/* 후불/선불 토글 — payment_type에 따라 표시 */}
+                  {carrierPaymentType === "both" ? (
+                    <div className={styles.paymentToggle}>
+                      <button className={`${styles.toggleBtn} ${paymentType === "postpaid" ? styles.toggleBtnActive : ""}`} onClick={() => { setPaymentType("postpaid"); setSelectedPlan(null); }}>후불</button>
+                      <button className={`${styles.toggleBtn} ${paymentType === "prepaid" ? styles.toggleBtnActive : ""}`} onClick={() => { setPaymentType("prepaid"); setSelectedPlan(null); }}>선불</button>
                     </div>
-                    <div className={styles.filterGroup}>
-                      <span className={styles.filterLabel}>요금제명</span>
-                      <input type="text" className={styles.filterSearch} placeholder="검색할 요금제명" value={planSearch} onChange={(e) => setPlanSearch(e.target.value)} />
+                  ) : (
+                    <div style={{ marginBottom: 16, padding: "10px 16px", background: "var(--brand-light)", borderRadius: 10, fontSize: 14, fontWeight: 600, color: "var(--brand)" }}>
+                      {carrierPaymentType === "postpaid" ? "후불제" : "선불제"} 요금제
                     </div>
-                  </div>
+                  )}
 
                   {selectedPlan && (
                     <div className={styles.selectedPlan}>
@@ -397,7 +407,7 @@ function FormContent() {
                 <div className={styles.fieldRow}>
                   <div className={styles.fieldGroup}>
                     <label className={styles.fieldLabel}>생년월일<span className={styles.fieldRequired}>*</span></label>
-                    <input type="text" className={styles.input} placeholder="YYYYMMDD" value={formData.birthDate} onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })} />
+                    <input type="text" className={styles.input} placeholder="YYYYMMDD" value={formData.birthDate} onChange={(e) => setFormData({ ...formData, birthDate: formatBirth(e.target.value) })} />
                   </div>
                   <div className={styles.fieldGroup}>
                     <label className={styles.fieldLabel}>신분증번호/여권번호</label>

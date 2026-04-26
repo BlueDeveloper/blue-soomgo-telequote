@@ -11,6 +11,14 @@ export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// 생년월일 자동 하이픈
+export function formatBirth(value: string): string {
+  const nums = value.replace(/[^0-9]/g, "").slice(0, 8);
+  if (nums.length <= 4) return nums;
+  if (nums.length <= 6) return `${nums.slice(0, 4)}-${nums.slice(4)}`;
+  return `${nums.slice(0, 4)}-${nums.slice(4, 6)}-${nums.slice(6)}`;
+}
+
 // 생년월일 유효성 (YYYYMMDD)
 export function isValidBirth(birth: string): boolean {
   if (!/^\d{8}$/.test(birth)) return false;

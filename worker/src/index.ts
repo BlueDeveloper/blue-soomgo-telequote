@@ -6,6 +6,7 @@ import { handleUpload, handleR2Get } from "./upload";
 import { handleNotices } from "./notices";
 import { handleInquiries } from "./inquiries";
 import { handleCrawl } from "./crawl";
+import { handleApplications } from "./applications";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -33,6 +34,8 @@ export default {
         response = await handlePlans(request, env, path);
       } else if (path.startsWith("/api/notices")) {
         response = await handleNotices(request, env, path);
+      } else if (path.startsWith("/api/applications")) {
+        response = await handleApplications(request, env, path);
       } else if (path.startsWith("/api/inquiries")) {
         response = await handleInquiries(request, env, path);
       } else {
