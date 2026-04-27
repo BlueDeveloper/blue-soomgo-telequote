@@ -98,6 +98,8 @@ async function updateCarrier(env: Env, id: string, request: Request): Promise<Re
     isActive: "is_active", parentId: "parent_id", paymentType: "payment_type",
     icon_style: "icon_style", sort_order: "sort_order",
     is_active: "is_active", parent_id: "parent_id", payment_type: "payment_type",
+    form_config: "form_config", form_version: "form_version", form_template: "form_template", form_fields: "form_fields",
+    formConfig: "form_config", formVersion: "form_version", formTemplate: "form_template", formFields: "form_fields",
   };
 
   for (const [key, val] of Object.entries(body)) {

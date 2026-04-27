@@ -8,10 +8,23 @@ export interface Carrier {
   sort_order: number;
   parent_id: string | null;
   payment_type: "postpaid" | "prepaid" | "both";
+  form_config: string | null;
+  form_version: string | null;
+  form_template: string | null;
+  form_fields: string | null;
   is_active: number;
   created_at: string;
   updated_at: string;
   children?: Carrier[];
+}
+
+export interface FormFieldConfig {
+  key: string;
+  label: string;
+  type: "text" | "phone" | "date" | "select" | "address";
+  required: boolean;
+  options?: string[];
+  placeholder?: string;
 }
 
 export interface Notice {
