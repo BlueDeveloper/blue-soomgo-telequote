@@ -193,6 +193,34 @@ export async function searchMyInquiries(name: string, email: string): Promise<In
   return res.data || [];
 }
 
+// Form Versions
+export interface FormVersion {
+  id: number;
+  carrier_id: string;
+  version: number;
+  label: string;
+  pages: string;
+  is_active: number;
+  created_at: string;
+}
+
+export async function fetchFormVersions(carrierId: string): Promise<FormVersion[]> {
+  const res = await request<FormVersion[]>(`/api/form-versions?carrier=${carrierId}`);
+  return res.data || [];
+}
+
+export async function createFormVersion(carrierId: string, label: string, pages: string[]): Promise<ApiResponse<{ id: number; version: number }>> {
+  return request("/api/form-versions", { method: "POST", body: JSON.stringify({ carrierId, label, pages }) });
+}
+
+export async function activateFormVersion(id: number): Promise<ApiResponse<void>> {
+  return request(`/api/form-versions/${id}/activate`, { method: "PUT" });
+}
+
+export async function deleteFormVersion(id: number): Promise<ApiResponse<void>> {
+  return request(`/api/form-versions/${id}`, { method: "DELETE" });
+}
+
 // Dashboard
 export async function fetchDashboard(): Promise<Record<string, unknown>> {
   const res = await request<Record<string, unknown>>("/api/admin/dashboard");

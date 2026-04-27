@@ -8,6 +8,7 @@ import { handleInquiries } from "./inquiries";
 import { handleCrawl } from "./crawl";
 import { handleApplications } from "./applications";
 import { handleDashboard } from "./dashboard";
+import { handleFormVersions } from "./formVersions";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -31,6 +32,8 @@ export default {
         response = await handleCarriers(request, env, path);
       } else if (path === "/api/admin/dashboard") {
         response = await handleDashboard(request, env);
+      } else if (path.startsWith("/api/form-versions")) {
+        response = await handleFormVersions(request, env, path);
       } else if (path === "/api/admin/crawl") {
         response = await handleCrawl(request, env);
       } else if (path.startsWith("/api/plans")) {
