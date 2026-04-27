@@ -178,7 +178,43 @@ function FormContent() {
                 </div>
                 <div className={styles.completeActions}>
                   <Link href="/" className={styles.btnHome}>홈으로</Link>
-                  <button className={styles.btnPrint} onClick={() => window.print()}>🖨️ 신청서 출력하기</button>
+                  <button className={styles.btnPrint} onClick={async () => {
+                    const mvnoData = tree.flatMap(m => m.children || []).find(c => c.id === selectedCarrier);
+                    if (mvnoData?.form_template?.endsWith(".pdf")) {
+                      // PDF에 값 기입 후 새 탭
+                      const API = process.env.NEXT_PUBLIC_API_URL || "https://hlmobile-api.blueehdwp.workers.dev";
+                      const res = await fetch(`${API}/api/pdf-fill`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          carrierId: selectedCarrier,
+                          values: {
+                            subscriberName: formData.subscriberName,
+                            birthDate: formData.birthDate,
+                            contactNumber: formData.contactNumber,
+                            customerType: formData.customerType,
+                            idNumber: formData.idNumber,
+                            nationality: formData.nationality,
+                            address: `${formData.address} ${formData.addressDetail}`,
+                            addressDetail: formData.addressDetail,
+                            activationType: formData.activationType,
+                            usimSerial: formData.usimSerial,
+                            desiredNumber: formData.desiredNumber,
+                            storeName: formData.storeName,
+                          },
+                        }),
+                      });
+                      if (res.ok) {
+                        const blob = await res.blob();
+                        const url = URL.createObjectURL(blob);
+                        window.open(url, "_blank");
+                      } else {
+                        window.print(); // fallback
+                      }
+                    } else {
+                      window.print();
+                    }
+                  }}>🖨️ 신청서 출력하기</button>
                 </div>
               </div>
             </div>
