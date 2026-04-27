@@ -29,20 +29,20 @@ function FormContent() {
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [plansLoading, setPlansLoading] = useState(false);
 
-  // 신청서 정보
+  // 신청서 정보 (테스트용 하드코딩)
   const [formData, setFormData] = useState({
-    usimSerial: "",
-    customerType: "" as string,
-    contactNumber: "",
-    subscriberName: "",
-    birthDate: "",
-    idNumber: "",
+    usimSerial: "8982001234567890",
+    customerType: "개인",
+    contactNumber: "010-1234-5678",
+    subscriberName: "홍길동",
+    birthDate: "1990-01-15",
+    idNumber: "900115-1234567",
     nationality: "대한민국",
-    address: "",
-    addressDetail: "",
-    activationType: "" as string,
-    desiredNumber: "",
-    storeName: "",
+    address: "(06236) 서울특별시 강남구 테헤란로 123",
+    addressDetail: "456호",
+    activationType: "번호이동",
+    desiredNumber: "010-9876-5432",
+    storeName: "HL모바일 강남점",
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -186,13 +186,51 @@ function FormContent() {
             {/* 인쇄 전용 양식 */}
             {(() => {
               const mvnoData = tree.flatMap(m => m.children || []).find(c => c.id === selectedCarrier);
-              const templateImg = mvnoData?.form_template;
+              const templateUrl = mvnoData?.form_template;
+              const isPdf = templateUrl?.endsWith(".pdf");
+
+              // 좌표 데이터 파싱
+              let fieldPositions: { key: string; x: number; y: number; fontSize: number; page: number }[] = [];
+              if (mvnoData?.form_fields) {
+                try {
+                  const parsed = JSON.parse(mvnoData.form_fields);
+                  if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.key) {
+                    fieldPositions = parsed;
+                  }
+                } catch {}
+              }
+
+              // 필드 key → 값 매핑
+              const valueMap: Record<string, string> = {
+                subscriberName: formData.subscriberName,
+                birthDate: formData.birthDate,
+                contactNumber: formData.contactNumber,
+                customerType: formData.customerType,
+                idNumber: formData.idNumber,
+                nationality: formData.nationality,
+                address: `${formData.address} ${formData.addressDetail}`,
+                addressDetail: formData.addressDetail,
+                activationType: formData.activationType,
+                usimSerial: formData.usimSerial,
+                desiredNumber: formData.desiredNumber,
+                storeName: formData.storeName,
+              };
+
               return (
                 <div className={styles.printOnly}>
-                  {templateImg ? (
-                    /* 양식 이미지 배경 + 오버레이 */
-                    <div style={{ position: "relative" }}>
-                      <img src={templateImg} alt="양식" style={{ width: "100%", display: "block" }} />
+                  {templateUrl && isPdf && fieldPositions.length > 0 ? (
+                    /* PDF 배경 + 좌표 오버레이 인쇄 */
+                    <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+                      <iframe src={templateUrl} style={{ width: "100%", height: "100%", border: "none" }} />
+                      {fieldPositions.filter(fp => fp.page === 1).map(fp => (
+                        <div key={fp.key} style={{
+                          position: "absolute", left: `${fp.x}%`, top: `${fp.y}%`,
+                          fontSize: fp.fontSize || 12, fontWeight: 600, color: "#000",
+                          whiteSpace: "nowrap", transform: "translate(-50%, -50%)",
+                        }}>
+                          {valueMap[fp.key] || ""}
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     /* 기본 양식 */
