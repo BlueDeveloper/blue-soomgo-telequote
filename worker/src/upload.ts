@@ -32,6 +32,7 @@ export async function handleR2Get(request: Request, env: Env, path: string): Pro
     headers: {
       "Content-Type": obj.httpMetadata?.contentType || "image/png",
       "Cache-Control": "public, max-age=31536000, immutable",
+      "Access-Control-Allow-Origin": "*",
     },
   });
 }

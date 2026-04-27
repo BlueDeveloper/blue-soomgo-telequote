@@ -184,32 +184,48 @@ function FormContent() {
             </div>
 
             {/* 인쇄 전용 양식 */}
-            <div className={styles.printOnly}>
-              <div className={styles.printHeader}>
-                <h1>이동통신 가입신청서</h1>
-                <p>{carrierName} · {paymentType === "postpaid" ? "후불" : "선불"}</p>
-              </div>
-              <table className={styles.printTable}>
-                <tbody>
-                  <tr><td className={styles.printLabel}>가입자명</td><td>{formData.subscriberName}</td><td className={styles.printLabel}>생년월일</td><td>{formData.birthDate}</td></tr>
-                  <tr><td className={styles.printLabel}>연락처</td><td>{formData.contactNumber}</td><td className={styles.printLabel}>고객유형</td><td>{formData.customerType}</td></tr>
-                  <tr><td className={styles.printLabel}>신분증번호</td><td>{formData.idNumber}</td><td className={styles.printLabel}>국적</td><td>{formData.nationality}</td></tr>
-                  <tr><td className={styles.printLabel}>주소</td><td colSpan={3}>{formData.address} {formData.addressDetail}</td></tr>
-                  <tr><td className={styles.printLabel}>통신사</td><td>{carrierName}</td><td className={styles.printLabel}>개통구분</td><td>{formData.activationType}</td></tr>
-                  <tr><td className={styles.printLabel}>요금제</td><td>{selectedPlan?.name}</td><td className={styles.printLabel}>월 요금</td><td>{selectedPlan ? formatPrice(selectedPlan.monthly) : ""}</td></tr>
-                  <tr><td className={styles.printLabel}>USIM 일련번호</td><td>{formData.usimSerial}</td><td className={styles.printLabel}>희망번호</td><td>{formData.desiredNumber}</td></tr>
-                  <tr><td className={styles.printLabel}>판매점명</td><td colSpan={3}>{formData.storeName}</td></tr>
-                </tbody>
-              </table>
-              <div className={styles.printSignature}>
-                <p>위 내용이 사실과 다름없음을 확인합니다.</p>
-                <div className={styles.printSignRow}>
-                  <span>신청일: {new Date().toLocaleDateString("ko-KR")}</span>
-                  <span>신청인: {formData.subscriberName} (서명)</span>
+            {(() => {
+              const mvnoData = tree.flatMap(m => m.children || []).find(c => c.id === selectedCarrier);
+              const templateImg = mvnoData?.form_template;
+              return (
+                <div className={styles.printOnly}>
+                  {templateImg ? (
+                    /* 양식 이미지 배경 + 오버레이 */
+                    <div style={{ position: "relative" }}>
+                      <img src={templateImg} alt="양식" style={{ width: "100%", display: "block" }} />
+                    </div>
+                  ) : (
+                    /* 기본 양식 */
+                    <>
+                      <div className={styles.printHeader}>
+                        <h1>이동통신 가입신청서</h1>
+                        <p>{carrierName} · {paymentType === "postpaid" ? "후불" : "선불"}</p>
+                      </div>
+                      <table className={styles.printTable}>
+                        <tbody>
+                          <tr><td className={styles.printLabel}>가입자명</td><td>{formData.subscriberName}</td><td className={styles.printLabel}>생년월일</td><td>{formData.birthDate}</td></tr>
+                          <tr><td className={styles.printLabel}>연락처</td><td>{formData.contactNumber}</td><td className={styles.printLabel}>고객유형</td><td>{formData.customerType}</td></tr>
+                          <tr><td className={styles.printLabel}>신분증번호</td><td>{formData.idNumber}</td><td className={styles.printLabel}>국적</td><td>{formData.nationality}</td></tr>
+                          <tr><td className={styles.printLabel}>주소</td><td colSpan={3}>{formData.address} {formData.addressDetail}</td></tr>
+                          <tr><td className={styles.printLabel}>통신사</td><td>{carrierName}</td><td className={styles.printLabel}>개통구분</td><td>{formData.activationType}</td></tr>
+                          <tr><td className={styles.printLabel}>요금제</td><td>{selectedPlan?.name}</td><td className={styles.printLabel}>월 요금</td><td>{selectedPlan ? formatPrice(selectedPlan.monthly) : ""}</td></tr>
+                          <tr><td className={styles.printLabel}>USIM 일련번호</td><td>{formData.usimSerial}</td><td className={styles.printLabel}>희망번호</td><td>{formData.desiredNumber}</td></tr>
+                          <tr><td className={styles.printLabel}>판매점명</td><td colSpan={3}>{formData.storeName}</td></tr>
+                        </tbody>
+                      </table>
+                      <div className={styles.printSignature}>
+                        <p>위 내용이 사실과 다름없음을 확인합니다.</p>
+                        <div className={styles.printSignRow}>
+                          <span>신청일: {new Date().toLocaleDateString("ko-KR")}</span>
+                          <span>신청인: {formData.subscriberName} (서명)</span>
+                        </div>
+                      </div>
+                      <div className={styles.printFooter}>hlmobile · 출처: hlmobile.pages.dev</div>
+                    </>
+                  )}
                 </div>
-              </div>
-              <div className={styles.printFooter}>hlmobile · 출처: hlmobile.pages.dev</div>
-            </div>
+              );
+            })()}
           </div>
         </div>
       </>
