@@ -30,10 +30,11 @@ export async function handlePdfFill(request: Request, env: Env): Promise<Respons
 
   if (positions.length === 0) return json({ ok: false, error: "좌표 데이터가 없습니다" }, 400);
 
-  // PDF 다운로드
-  const pdfRes = await fetch(carrier.form_template);
-  if (!pdfRes.ok) return json({ ok: false, error: "PDF 다운로드 실패" }, 500);
-  const pdfBytes = await pdfRes.arrayBuffer();
+  // PDF를 R2에서 직접 가져오기
+  const pdfKey = carrier.form_template.replace(/^https?:\/\/[^/]+\/r2\//, "");
+  const pdfObj = await env.R2.get(pdfKey);
+  if (!pdfObj) return json({ ok: false, error: "PDF 파일을 찾을 수 없습니다" }, 404);
+  const pdfBytes = await pdfObj.arrayBuffer();
 
   // PDF 수정
   const pdfDoc = await PDFDocument.load(pdfBytes);
