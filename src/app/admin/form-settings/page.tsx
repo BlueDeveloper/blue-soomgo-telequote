@@ -8,6 +8,41 @@ import { useToast } from "@/components/Toast";
 import type { Carrier } from "@/types";
 import styles from "../page.module.css";
 
+// PDF.js lazy loader
+interface PdfJsLib {
+  getDocument: (params: { data: ArrayBuffer }) => { promise: Promise<{ numPages: number; getPage: (n: number) => Promise<{ getViewport: (o: { scale: number }) => { width: number; height: number }; render: (o: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }) => { promise: Promise<void> } }> }> };
+}
+
+async function loadPdfJs(): Promise<PdfJsLib> {
+  if ((window as unknown as Record<string, unknown>).pdfjsLib) {
+    return (window as unknown as Record<string, unknown>).pdfjsLib as unknown as PdfJsLib;
+  }
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+    s.type = "module";
+
+    // pdf.js는 module이라 다른 방식으로 로드
+    const s2 = document.createElement("script");
+    s2.textContent = `
+      import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs').then(m => {
+        m.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+        window.pdfjsLib = m;
+        window.dispatchEvent(new Event('pdfjsReady'));
+      });
+    `;
+    s2.type = "module";
+    document.head.appendChild(s2);
+
+    const handler = () => {
+      window.removeEventListener("pdfjsReady", handler);
+      resolve((window as unknown as Record<string, unknown>).pdfjsLib as unknown as PdfJsLib);
+    };
+    window.addEventListener("pdfjsReady", handler);
+    setTimeout(() => reject(new Error("PDF.js 로드 타임아웃")), 15000);
+  });
+}
+
 interface FormField {
   key: string;
   label: string;
@@ -39,9 +74,12 @@ export default function FormSettingsPage() {
   const [fields, setFields] = useState<FormField[]>(DEFAULT_FIELDS);
   const [formVersion, setFormVersion] = useState("v1");
   const [formTemplate, setFormTemplate] = useState("");
+  const [formPages, setFormPages] = useState<string[]>([]);
+  const [selectedPage, setSelectedPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [converting, setConverting] = useState(false);
   const router = useRouter();
 
   const allMvnos = tree.flatMap(m => m.children || []);
@@ -71,6 +109,12 @@ export default function FormSettingsPage() {
     }
     setFormVersion((mvno.form_version as string) || "v1");
     setFormTemplate((mvno.form_template as string) || "");
+    try {
+      const fp = mvno.form_fields as string | null;
+      if (fp) setFormPages(JSON.parse(fp));
+      else setFormPages([]);
+    } catch { setFormPages([]); }
+    setSelectedPage(0);
   }, [selectedMvno, allMvnos]);
 
   const handleSave = async () => {
@@ -80,6 +124,7 @@ export default function FormSettingsPage() {
       form_config: JSON.stringify(fields),
       form_version: formVersion,
       form_template: formTemplate,
+      form_fields: JSON.stringify(formPages),
     } as unknown as Partial<Carrier>);
     setSaving(false);
     toast("저장되었습니다.", "success");
@@ -174,28 +219,116 @@ export default function FormSettingsPage() {
 
             {selectedMvno && (
               <>
-                {/* 양식 템플릿 이미지 */}
+                {/* 양식 템플릿 */}
                 <div style={{ background: "white", borderRadius: 16, padding: 24, marginBottom: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.04)" }}>
                   <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--text-0)", marginBottom: 14 }}>양식 템플릿 (인쇄용 배경)</h3>
-                  <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-                    {formTemplate && (
-                      <img src={formTemplate} alt="양식" style={{ width: 120, height: 170, objectFit: "contain", border: "1px solid var(--border)", borderRadius: 8 }} />
-                    )}
+
+                  <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+                    {/* PDF 업로드 */}
+                    <label style={{ padding: "12px 20px", background: "#FEF3C7", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#92400E", border: "2px solid #FDE68A" }}>
+                      {converting ? "변환 중..." : "📄 PDF 업로드"}
+                      <input type="file" accept=".pdf" hidden onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setConverting(true);
+                        try {
+                          // PDF.js CDN 로드
+                          const pdfjsLib = await loadPdfJs();
+                          const arrayBuffer = await file.arrayBuffer();
+                          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+                          const pages: string[] = [];
+                          for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const scale = 2; // 고해상도
+                            const viewport = page.getViewport({ scale });
+                            const canvas = document.createElement("canvas");
+                            canvas.width = viewport.width;
+                            canvas.height = viewport.height;
+                            const ctx = canvas.getContext("2d")!;
+                            await page.render({ canvasContext: ctx, viewport }).promise;
+
+                            // canvas → blob → R2 업로드
+                            const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+                            const formData = new FormData();
+                            formData.append("file", blob, `form_p${i}.png`);
+                            const token = sessionStorage.getItem("admin_token");
+                            const API = process.env.NEXT_PUBLIC_API_URL || "https://hlmobile-api.blueehdwp.workers.dev";
+                            const res = await fetch(`${API}/api/upload`, {
+                              method: "POST",
+                              headers: token ? { Authorization: `Bearer ${token}` } : {},
+                              body: formData,
+                            });
+                            const json = await res.json() as { ok: boolean; data?: { url: string } };
+                            if (json.ok && json.data) pages.push(json.data.url);
+                          }
+
+                          setFormPages(pages);
+                          if (pages.length > 0) setFormTemplate(pages[0]);
+                          setSelectedPage(0);
+                          toast(`PDF ${pdf.numPages}페이지 변환 완료`, "success");
+                        } catch (err) {
+                          toast("PDF 변환에 실패했습니다.", "error");
+                          console.error(err);
+                        }
+                        setConverting(false);
+                      }} />
+                    </label>
+
+                    {/* 이미지 직접 업로드 */}
                     <label style={{ padding: "12px 20px", background: "#F8FAFC", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600, color: "var(--text-1)", border: "2px solid #E8ECF1" }}>
-                      {uploading ? "업로드 중..." : "이미지 업로드"}
+                      {uploading ? "업로드 중..." : "🖼️ 이미지 업로드"}
                       <input type="file" accept="image/*" hidden onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
                         setUploading(true);
                         const res = await uploadImage(file);
                         setUploading(false);
-                        if (res.ok && res.data) { setFormTemplate(res.data.url); toast("업로드 완료", "success"); }
-                        else toast("업로드 실패", "error");
+                        if (res.ok && res.data) {
+                          setFormPages(prev => [...prev, res.data!.url]);
+                          if (!formTemplate) setFormTemplate(res.data.url);
+                          toast("이미지 추가 완료", "success");
+                        } else toast("업로드 실패", "error");
                       }} />
                     </label>
-                    {formTemplate && <button onClick={() => setFormTemplate("")} style={{ fontSize: 13, color: "var(--danger)", cursor: "pointer" }}>제거</button>}
+
+                    {formPages.length > 0 && (
+                      <button onClick={() => { setFormPages([]); setFormTemplate(""); }} style={{ padding: "12px 20px", fontSize: 13, color: "var(--danger)", cursor: "pointer", borderRadius: 10, border: "2px solid #FECACA", background: "#FEF2F2", fontWeight: 600 }}>
+                        전체 제거
+                      </button>
+                    )}
                   </div>
-                  <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 8 }}>양식 이미지가 등록되면 인쇄 시 배경으로 사용됩니다. 미등록 시 기본 양식으로 출력됩니다.</p>
+
+                  {/* 페이지 미리보기 */}
+                  {formPages.length > 0 && (
+                    <div>
+                      <div style={{ display: "flex", gap: 8, marginBottom: 12, overflowX: "auto", paddingBottom: 4 }}>
+                        {formPages.map((url, i) => (
+                          <button
+                            key={i}
+                            onClick={() => { setSelectedPage(i); setFormTemplate(url); }}
+                            style={{
+                              width: 80, height: 110, borderRadius: 8, overflow: "hidden", cursor: "pointer", flexShrink: 0,
+                              border: selectedPage === i ? "3px solid var(--brand)" : "2px solid #E8ECF1",
+                              boxShadow: selectedPage === i ? "0 0 0 2px rgba(37,99,235,0.15)" : "none",
+                            }}
+                          >
+                            <img src={url} alt={`페이지 ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          </button>
+                        ))}
+                      </div>
+                      <div style={{ border: "1px solid #E8ECF1", borderRadius: 12, overflow: "hidden", background: "#F8FAFC" }}>
+                        <img src={formPages[selectedPage]} alt="양식 미리보기" style={{ width: "100%", display: "block" }} />
+                      </div>
+                      <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 8 }}>
+                        {formPages.length}페이지 · 선택된 페이지가 인쇄 시 배경으로 사용됩니다. (페이지 {selectedPage + 1}/{formPages.length})
+                      </p>
+                    </div>
+                  )}
+
+                  {formPages.length === 0 && (
+                    <p style={{ fontSize: 13, color: "var(--text-3)", padding: "20px 0" }}>PDF 또는 이미지를 업로드하세요. 업로드된 양식은 인쇄 시 배경으로 사용됩니다.</p>
+                  )}
                 </div>
 
                 {/* 필드 목록 */}
