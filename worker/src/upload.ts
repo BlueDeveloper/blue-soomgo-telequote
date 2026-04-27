@@ -14,9 +14,9 @@ export async function handleUpload(request: Request, env: Env): Promise<Response
   const allowed = ["png", "jpg", "jpeg", "gif", "webp", "svg", "pdf"];
   if (!allowed.includes(ext)) return json({ ok: false, error: "지원하지 않는 파일 형식입니다" }, 400);
 
-  // PDF는 10MB 제한
-  if (ext === "pdf" && file.size > 10 * 1024 * 1024) {
-    return json({ ok: false, error: "PDF 파일은 10MB 이하만 가능합니다" }, 400);
+  // PDF는 20MB 제한
+  if (ext === "pdf" && file.size > 20 * 1024 * 1024) {
+    return json({ ok: false, error: "PDF 파일은 20MB 이하만 가능합니다" }, 400);
   }
 
   const folder = ext === "pdf" ? "forms" : "icons";
