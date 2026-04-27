@@ -68,7 +68,7 @@ const DEFAULT_FIELDS: FormField[] = [
 ];
 
 export default function FormSettingsPage() {
-  const { toast } = useToast();
+  const { toast, showLoading, hideLoading } = useToast();
   const [tree, setTree] = useState<Carrier[]>([]);
   const [selectedMvno, setSelectedMvno] = useState("");
   const [fields, setFields] = useState<FormField[]>(DEFAULT_FIELDS);
@@ -231,6 +231,7 @@ export default function FormSettingsPage() {
                         const file = e.target.files?.[0];
                         if (!file) return;
                         setConverting(true);
+                        showLoading("PDF 변환 중...");
                         try {
                           // PDF.js CDN 로드
                           const pdfjsLib = await loadPdfJs();
@@ -272,6 +273,7 @@ export default function FormSettingsPage() {
                           console.error(err);
                         }
                         setConverting(false);
+                        hideLoading();
                       }} />
                     </label>
 
