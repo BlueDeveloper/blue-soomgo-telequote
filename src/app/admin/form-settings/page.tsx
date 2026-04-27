@@ -363,7 +363,7 @@ export default function FormSettingsPage() {
                         ); })}
                       </div>
 
-                      <div style={{ width: 220, flexShrink: 0, background: "white", borderRadius: 10, padding: 14, boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.04)" }}>
+                      <div style={{ width: 220, flexShrink: 0, position: "sticky", top: 20, alignSelf: "flex-start", background: "white", borderRadius: 10, padding: 14, boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.04)" }}>
                         <h3 style={{ fontSize: 13, fontWeight: 800, marginBottom: 8 }}>필드 배치</h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                           {fields.map(f => {
