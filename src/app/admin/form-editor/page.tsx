@@ -234,6 +234,14 @@ function EditorContent() {
           )}
         </div>
 
+        {/* 배치 모드 안내 */}
+        {placingField && (
+          <div style={{ padding: "12px 20px", marginBottom: 16, background: "#DC2626", color: "white", borderRadius: 12, fontSize: 14, fontWeight: 700, textAlign: "center", animation: "fadeIn 0.2s" }}>
+            🎯 PDF 위에서 &quot;{fields.find((f: { key: string }) => f.key === placingField)?.label}&quot; 위치를 클릭하세요 &nbsp;
+            <button onClick={() => setPlacingField(null)} style={{ marginLeft: 12, padding: "4px 12px", background: "rgba(255,255,255,0.2)", color: "white", borderRadius: 6, fontSize: 12, cursor: "pointer" }}>취소</button>
+          </div>
+        )}
+
         {!activeVersion ? (
           <div className={styles.empty}>양식을 먼저 업로드하세요. <Link href="/admin/form-settings" style={{ color: "var(--brand)" }}>신청서 설정 →</Link></div>
         ) : (
@@ -272,11 +280,6 @@ function EditorContent() {
                   <span style={{ fontSize: 9, marginLeft: 4, opacity: 0.7 }}>{p.fontSize}px</span>
                 </div>
               ))}
-              {placingField && (
-                <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", padding: "8px 16px", background: "#DC2626", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 700, zIndex: 20 }}>
-                  🎯 PDF 위에서 &quot;{fields.find((f: { key: string }) => f.key === placingField)?.label}&quot; 위치를 클릭하세요
-                </div>
-              )}
             </div>
 
             {/* 우측: 필드 패널 */}
@@ -291,7 +294,11 @@ function EditorContent() {
                     return (
                       <div key={f.key} style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 10px", borderRadius: 8, background: placed ? "#EFF6FF" : "#F8FAFC", border: placingField === f.key ? "2px solid #DC2626" : placed ? "1px solid #BFDBFE" : "1px solid #E8ECF1" }}>
                         <button
-                          onClick={() => setPlacingField(placingField === f.key ? null : f.key)}
+                          onClick={() => {
+                            const next = placingField === f.key ? null : f.key;
+                            setPlacingField(next);
+                            if (next) toast(`"${f.label}" 선택됨 — PDF 위에서 위치를 클릭하세요`, "info");
+                          }}
                           style={{ flex: 1, textAlign: "left", fontSize: 13, fontWeight: 600, color: placed ? "var(--brand)" : "var(--text-1)", cursor: "pointer" }}
                         >
                           {placed ? "✓ " : "○ "}{f.label}
