@@ -272,12 +272,22 @@ export default function FormSettingsPage() {
                       <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-0)", marginBottom: 12 }}>양식 미리보기 ({previewIdx + 1}/{previewPages.length})</h3>
                       <div style={{ display: "flex", gap: 6, marginBottom: 10, overflowX: "auto" }}>
                         {previewPages.map((u, i) => (
-                          <button key={i} onClick={() => setPreviewIdx(i)} style={{ width: 60, height: 80, borderRadius: 6, overflow: "hidden", cursor: "pointer", border: previewIdx === i ? "2px solid var(--brand)" : "1px solid #E8ECF1", flexShrink: 0 }}>
-                            <img src={u} alt={`p${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          </button>
+                          <div
+                            key={`${u}-${i}`}
+                            onClick={(e) => { e.stopPropagation(); setPreviewIdx(i); }}
+                            style={{
+                              width: 60, height: 80, borderRadius: 6, overflow: "hidden", cursor: "pointer", flexShrink: 0,
+                              border: previewIdx === i ? "3px solid var(--brand)" : "1px solid #E8ECF1",
+                              boxShadow: previewIdx === i ? "0 0 0 2px rgba(37,99,235,0.15)" : "none",
+                              position: "relative",
+                            }}
+                          >
+                            <img src={u} alt={`p${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
+                            <span style={{ position: "absolute", bottom: 2, right: 4, fontSize: 9, fontWeight: 800, color: "white", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>{i + 1}</span>
+                          </div>
                         ))}
                       </div>
-                      <img src={previewPages[previewIdx]} alt="미리보기" style={{ width: "100%", borderRadius: 8, border: "1px solid #E8ECF1" }} />
+                      <img key={previewPages[previewIdx]} src={previewPages[previewIdx]} alt="미리보기" style={{ width: "100%", borderRadius: 8, border: "1px solid #E8ECF1" }} />
                     </div>
                   )}
                 </div>
