@@ -185,8 +185,13 @@ function EditorContent() {
         <a href="/" className={styles.sidebarLogo} style={{ textDecoration: "none", color: "inherit" }}><span className={styles.sidebarLogoIcon}>H</span>관리자</a>
         <nav className={styles.sidebarNav}>
           <Link href="/admin/dashboard" className={styles.sidebarLink}>📊 대시보드</Link>
+          <Link href="/admin/carriers" className={styles.sidebarLink}>📱 통신사</Link>
+          <Link href="/admin/plans" className={styles.sidebarLink}>💰 요금제</Link>
+          <Link href="/admin/applications" className={styles.sidebarLink}>📋 신청서</Link>
           <Link href="/admin/form-settings" className={styles.sidebarLink}>📝 신청서설정</Link>
           <Link href="/admin/form-editor" className={`${styles.sidebarLink} ${styles.sidebarLinkActive}`}>🎯 좌표에디터</Link>
+          <Link href="/admin/notices" className={styles.sidebarLink}>📢 공지사항</Link>
+          <Link href="/admin/inquiries" className={styles.sidebarLink}>💬 문의</Link>
         </nav>
         <div className={styles.sidebarLogout}><button className={styles.logoutBtn} onClick={handleLogout}>로그아웃</button></div>
       </aside>
