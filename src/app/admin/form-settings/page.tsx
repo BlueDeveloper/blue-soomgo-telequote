@@ -72,15 +72,16 @@ export default function FormSettingsPage() {
 
   // MVNO 선택 시 설정 + 버전 로드
   useEffect(() => {
-    if (!selectedMvno) return;
-    const mvno = allMvnos.find(m => m.id === selectedMvno);
+    if (!selectedMvno || tree.length === 0) return;
+    const mvno = tree.flatMap(m => m.children || []).find(m => m.id === selectedMvno);
     if (mvno) {
       try { setFields(mvno.form_config ? JSON.parse(mvno.form_config) : DEFAULT_FIELDS); } catch { setFields(DEFAULT_FIELDS); }
       try { setPreviewPages(mvno.form_fields ? JSON.parse(mvno.form_fields) : []); } catch { setPreviewPages([]); }
       setPreviewIdx(0);
     }
     fetchFormVersions(selectedMvno).then(setVersions);
-  }, [selectedMvno, allMvnos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMvno, tree]);
 
   const activeVersion = versions.find(v => v.is_active);
 
