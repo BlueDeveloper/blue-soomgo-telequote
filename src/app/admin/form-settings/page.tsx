@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { fetchCarrierTree, updateCarrier, uploadImage, fetchFormVersions, createFormVersion, activateFormVersion, deleteFormVersion } from "@/lib/api";
+import { fetchCarrierTree, updateCarrier, uploadImage, fetchFormVersions, createFormVersion, activateFormVersion, deleteFormVersion, deleteAllFormVersions } from "@/lib/api";
 import type { FormVersion } from "@/lib/api";
 import { useToast } from "@/components/Toast";
 import type { Carrier } from "@/types";
@@ -152,6 +152,18 @@ export default function FormSettingsPage() {
     setUpgradeLabel("");
   };
 
+  const handleDeleteAll = async () => {
+    if (!confirm("이 통신사의 모든 양식 버전과 이미지를 삭제합니다. 계속할까요?")) return;
+    showLoading("양식 삭제 중...");
+    await deleteAllFormVersions(selectedMvno);
+    setVersions([]);
+    setPreviewPages([]);
+    setPreviewIdx(0);
+    hideLoading();
+    toast("전체 양식이 삭제되었습니다.", "success");
+    load();
+  };
+
   const handleActivate = async (id: number, ver: number) => {
     await activateFormVersion(id);
     toast(`v${ver} 활성화`, "success");
@@ -160,9 +172,13 @@ export default function FormSettingsPage() {
   };
 
   const handleDeleteVersion = async (id: number, ver: number) => {
-    if (!confirm(`v${ver}을 삭제합니다.`)) return;
+    if (!confirm(`v${ver}을 삭제합니다. 관련 이미지도 함께 삭제됩니다.`)) return;
+    showLoading("삭제 중...");
     await deleteFormVersion(id);
+    hideLoading();
+    toast(`v${ver} 삭제 완료`, "success");
     fetchFormVersions(selectedMvno).then(setVersions);
+    load();
   };
 
   const toggleRequired = (i: number) => setFields(p => p.map((f, idx) => idx === i ? { ...f, required: !f.required } : f));
@@ -224,9 +240,16 @@ export default function FormSettingsPage() {
                   <div style={{ background: "white", borderRadius: 16, padding: 24, marginBottom: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.04)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                       <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--text-0)" }}>양식 버전</h3>
-                      <button onClick={() => { setUpgradeModal(true); setUpgradePages([]); setUpgradeLabel(""); }} style={{ padding: "10px 20px", background: "var(--brand)", color: "white", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-                        ⬆️ 버전 업그레이드
-                      </button>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        {versions.length > 0 && (
+                          <button onClick={handleDeleteAll} style={{ padding: "10px 16px", background: "#FEF2F2", color: "#DC2626", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid #FECACA" }}>
+                            🗑️ 전체 삭제
+                          </button>
+                        )}
+                        <button onClick={() => { setUpgradeModal(true); setUpgradePages([]); setUpgradeLabel(""); }} style={{ padding: "10px 20px", background: "var(--brand)", color: "white", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                          ⬆️ 버전 업그레이드
+                        </button>
+                      </div>
                     </div>
 
                     {activeVersion ? (

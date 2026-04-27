@@ -64,9 +64,55 @@ export async function handleFormVersions(request: Request, env: Env, path: strin
     return json({ ok: true });
   }
 
-  // DELETE /api/form-versions/:id
+  // DELETE /api/form-versions/:id — DB + R2 이미지 전부 삭제
   if (request.method === "DELETE" && parts.length === 1) {
+    const ver = await env.DB.prepare("SELECT * FROM form_versions WHERE id = ?").bind(parts[0]).first<{ pages: string; is_active: number; carrier_id: string }>();
+    if (!ver) return json({ ok: false, error: "버전을 찾을 수 없습니다" }, 404);
+
+    // R2 이미지 삭제
+    try {
+      const pages = JSON.parse(ver.pages) as string[];
+      for (const url of pages) {
+        const key = url.replace(/^https?:\/\/[^/]+\/r2\//, "");
+        if (key) await env.R2.delete(key);
+      }
+    } catch { /* ignore */ }
+
+    // 활성 버전이었으면 carriers 테이블도 초기화
+    if (ver.is_active) {
+      await env.DB.prepare(
+        "UPDATE carriers SET form_template = NULL, form_fields = NULL WHERE id = ?"
+      ).bind(ver.carrier_id).run();
+    }
+
     await env.DB.prepare("DELETE FROM form_versions WHERE id = ?").bind(parts[0]).run();
+    return json({ ok: true });
+  }
+
+  // DELETE /api/form-versions/all/:carrierId — 해당 MVNO의 전체 버전 삭제
+  if (request.method === "DELETE" && parts.length === 2 && parts[0] === "all") {
+    const carrierId = parts[1];
+
+    // 모든 버전의 R2 이미지 삭제
+    const allVers = await env.DB.prepare("SELECT pages FROM form_versions WHERE carrier_id = ?").bind(carrierId).all();
+    for (const row of allVers.results as { pages: string }[]) {
+      try {
+        const pages = JSON.parse(row.pages) as string[];
+        for (const url of pages) {
+          const key = url.replace(/^https?:\/\/[^/]+\/r2\//, "");
+          if (key) await env.R2.delete(key);
+        }
+      } catch { /* ignore */ }
+    }
+
+    // DB 레코드 전부 삭제
+    await env.DB.prepare("DELETE FROM form_versions WHERE carrier_id = ?").bind(carrierId).run();
+
+    // carriers 테이블 초기화
+    await env.DB.prepare(
+      "UPDATE carriers SET form_template = NULL, form_fields = NULL WHERE id = ?"
+    ).bind(carrierId).run();
+
     return json({ ok: true });
   }
 

@@ -221,6 +221,10 @@ export async function deleteFormVersion(id: number): Promise<ApiResponse<void>> 
   return request(`/api/form-versions/${id}`, { method: "DELETE" });
 }
 
+export async function deleteAllFormVersions(carrierId: string): Promise<ApiResponse<void>> {
+  return request(`/api/form-versions/all/${carrierId}`, { method: "DELETE" });
+}
+
 // Dashboard
 export async function fetchDashboard(): Promise<Record<string, unknown>> {
   const res = await request<Record<string, unknown>>("/api/admin/dashboard");
