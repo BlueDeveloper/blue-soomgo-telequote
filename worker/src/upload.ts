@@ -11,10 +11,16 @@ export async function handleUpload(request: Request, env: Env): Promise<Response
   if (!file) return json({ ok: false, error: "파일이 없습니다" }, 400);
 
   const ext = file.name.split(".").pop()?.toLowerCase() || "png";
-  const allowed = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+  const allowed = ["png", "jpg", "jpeg", "gif", "webp", "svg", "pdf"];
   if (!allowed.includes(ext)) return json({ ok: false, error: "지원하지 않는 파일 형식입니다" }, 400);
 
-  const key = `icons/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  // PDF는 10MB 제한
+  if (ext === "pdf" && file.size > 10 * 1024 * 1024) {
+    return json({ ok: false, error: "PDF 파일은 10MB 이하만 가능합니다" }, 400);
+  }
+
+  const folder = ext === "pdf" ? "forms" : "icons";
+  const key = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   await env.R2.put(key, file.stream(), {
     httpMetadata: { contentType: file.type },
   });

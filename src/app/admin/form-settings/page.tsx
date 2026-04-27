@@ -93,44 +93,28 @@ export default function FormSettingsPage() {
     toast("항목 설정이 저장되었습니다.", "success");
   };
 
-  const handleUploadAndCreateVersion = async (file: File) => {
-    showLoading("양식 변환 중...");
+  const handleUploadFile = async (file: File) => {
+    showLoading("업로드 중...");
     try {
-      let pages: string[] = [];
-
-      if (file.type === "application/pdf") {
-        const pdfjsLib = await loadPdfJs() as { getDocument: (p: { data: ArrayBuffer }) => { promise: Promise<{ numPages: number; getPage: (n: number) => Promise<unknown> }> } };
-        const ab = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
-
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i) as { getViewport: (o: { scale: number }) => { width: number; height: number }; render: (o: unknown) => { promise: Promise<void> } };
-          // A4 기준 고정 너비 (1240px)로 통일 — 페이지 크기에 관계없이 일정한 출력
-          const baseVp = page.getViewport({ scale: 1 });
-          const targetWidth = 1240;
-          const scale = targetWidth / baseVp.width;
-          const vp = page.getViewport({ scale });
-          const canvas = document.createElement("canvas");
-          canvas.width = vp.width; canvas.height = vp.height;
-          await page.render({ canvasContext: canvas.getContext("2d")!, viewport: vp }).promise;
-
-          const blob = await new Promise<Blob>(r => canvas.toBlob(b => r(b!), "image/png"));
-          const fd = new FormData(); fd.append("file", blob, `form_p${i}.png`);
-          const token = sessionStorage.getItem("admin_token");
-          const API = process.env.NEXT_PUBLIC_API_URL || "https://hlmobile-api.blueehdwp.workers.dev";
-          const res = await fetch(`${API}/api/upload`, { method: "POST", headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd });
-          const j = await res.json() as { ok: boolean; data?: { url: string } };
-          if (j.ok && j.data) pages.push(j.data.url);
-        }
+      // PDF든 이미지든 R2에 직접 업로드
+      const fd = new FormData();
+      fd.append("file", file);
+      const token = sessionStorage.getItem("admin_token");
+      const API = process.env.NEXT_PUBLIC_API_URL || "https://hlmobile-api.blueehdwp.workers.dev";
+      const res = await fetch(`${API}/api/upload`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: fd,
+      });
+      const j = await res.json() as { ok: boolean; data?: { url: string }; error?: string };
+      if (j.ok && j.data) {
+        setUpgradePages([j.data.url]);
+        toast("업로드 완료", "success");
       } else {
-        const res = await uploadImage(file);
-        if (res.ok && res.data) pages = [res.data.url];
+        toast(j.error || "업로드 실패", "error");
       }
-
-      setUpgradePages(pages);
-      toast(`${pages.length}페이지 변환 완료`, "success");
     } catch {
-      toast("변환 실패", "error");
+      toast("업로드 실패", "error");
     }
     hideLoading();
   };
@@ -138,7 +122,9 @@ export default function FormSettingsPage() {
   const handleCreateVersion = async () => {
     if (upgradePages.length === 0) { toast("양식을 업로드해주세요.", "error"); return; }
     setSaving(true);
-    const res = await createFormVersion(selectedMvno, upgradeLabel || "", upgradePages);
+    const url = upgradePages[0];
+    const isPdf = url.endsWith(".pdf");
+    const res = await createFormVersion(selectedMvno, upgradeLabel || "", isPdf ? undefined : upgradePages, isPdf ? url : undefined);
     if (res.ok && res.data) {
       // 자동 활성화
       await activateFormVersion(res.data.id);
@@ -297,27 +283,28 @@ export default function FormSettingsPage() {
                   {/* 미리보기 */}
                   {previewPages.length > 0 && (
                     <div style={{ background: "white", borderRadius: 16, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.04)" }}>
-                      <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-0)", marginBottom: 12 }}>양식 미리보기 ({previewIdx + 1}/{previewPages.length})</h3>
-                      <div style={{ display: "flex", gap: 6, marginBottom: 10, overflowX: "auto" }}>
-                        {previewPages.map((u, i) => (
-                          <div
-                            key={`${u}-${i}`}
-                            onClick={(e) => { e.stopPropagation(); setPreviewIdx(i); }}
-                            style={{
-                              width: 60, height: 80, borderRadius: 6, overflow: "hidden", cursor: "pointer", flexShrink: 0,
-                              border: previewIdx === i ? "3px solid var(--brand)" : "1px solid #E8ECF1",
-                              boxShadow: previewIdx === i ? "0 0 0 2px rgba(37,99,235,0.15)" : "none",
-                              position: "relative",
-                            }}
-                          >
-                            <img src={u} alt={`p${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
-                            <span style={{ position: "absolute", bottom: 2, right: 4, fontSize: 9, fontWeight: 800, color: "white", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>{i + 1}</span>
+                      <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-0)", marginBottom: 12 }}>양식 미리보기</h3>
+                      {previewPages[0]?.endsWith(".pdf") ? (
+                        <iframe
+                          src={previewPages[0]}
+                          style={{ width: "100%", height: 600, border: "1px solid #E8ECF1", borderRadius: 8 }}
+                        />
+                      ) : (
+                        <>
+                          <div style={{ display: "flex", gap: 6, marginBottom: 10, overflowX: "auto" }}>
+                            {previewPages.map((u, i) => (
+                              <div key={`${u}-${i}`} onClick={(e) => { e.stopPropagation(); setPreviewIdx(i); }}
+                                style={{ width: 60, height: 80, borderRadius: 6, overflow: "hidden", cursor: "pointer", flexShrink: 0, border: previewIdx === i ? "3px solid var(--brand)" : "1px solid #E8ECF1", position: "relative" }}>
+                                <img src={u} alt={`p${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
+                                <span style={{ position: "absolute", bottom: 2, right: 4, fontSize: 9, fontWeight: 800, color: "white", textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>{i + 1}</span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                      <div style={{ maxHeight: 500, overflow: "auto", borderRadius: 8, border: "1px solid #E8ECF1" }}>
-                        <img key={previewPages[previewIdx]} src={previewPages[previewIdx]} alt="미리보기" style={{ width: "100%", display: "block" }} />
-                      </div>
+                          <div style={{ maxHeight: 500, overflow: "auto", borderRadius: 8, border: "1px solid #E8ECF1" }}>
+                            <img key={previewPages[previewIdx]} src={previewPages[previewIdx]} alt="미리보기" style={{ width: "100%", display: "block" }} />
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -385,23 +372,27 @@ export default function FormSettingsPage() {
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   <label style={{ padding: "14px 24px", background: "#FEF3C7", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700, color: "#92400E", border: "2px solid #FDE68A" }}>
                     📄 PDF 업로드
-                    <input type="file" accept=".pdf" hidden onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadAndCreateVersion(f); }} />
+                    <input type="file" accept=".pdf" hidden onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadFile(f); }} />
                   </label>
                   <label style={{ padding: "14px 24px", background: "#F8FAFC", borderRadius: 12, cursor: "pointer", fontSize: 14, fontWeight: 700, color: "var(--text-1)", border: "2px solid #E8ECF1" }}>
                     🖼️ 이미지 업로드
-                    <input type="file" accept="image/*" hidden onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadAndCreateVersion(f); }} />
+                    <input type="file" accept="image/*" hidden onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadFile(f); }} />
                   </label>
                 </div>
               </div>
 
               {upgradePages.length > 0 && (
                 <div style={{ marginTop: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)", marginBottom: 8 }}>{upgradePages.length}페이지 준비됨</div>
-                  <div style={{ display: "flex", gap: 6, overflowX: "auto" }}>
-                    {upgradePages.map((u, i) => (
-                      <img key={i} src={u} alt={`p${i + 1}`} style={{ width: 80, height: 110, objectFit: "cover", borderRadius: 8, border: "1px solid #E8ECF1" }} />
-                    ))}
-                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#059669", marginBottom: 8 }}>✓ 파일 업로드 완료</div>
+                  {upgradePages[0]?.endsWith(".pdf") ? (
+                    <iframe src={upgradePages[0]} style={{ width: "100%", height: 300, border: "1px solid #E8ECF1", borderRadius: 8 }} />
+                  ) : (
+                    <div style={{ display: "flex", gap: 6, overflowX: "auto" }}>
+                      {upgradePages.map((u, i) => (
+                        <img key={i} src={u} alt={`p${i + 1}`} style={{ width: 80, height: 110, objectFit: "cover", borderRadius: 8, border: "1px solid #E8ECF1" }} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 

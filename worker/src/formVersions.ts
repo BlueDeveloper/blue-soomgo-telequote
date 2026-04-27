@@ -20,11 +20,13 @@ export async function handleFormVersions(request: Request, env: Env, path: strin
 
   // POST /api/form-versions — 새 버전 생성
   if (request.method === "POST" && parts.length === 0) {
-    const { carrierId, label, pages } = await request.json<{
-      carrierId: string; label: string; pages: string[];
+    const body = await request.json<{
+      carrierId: string; label: string; pages?: string[]; pdfUrl?: string;
     }>();
-    if (!carrierId || !pages || pages.length === 0) {
-      return json({ ok: false, error: "carrierId와 pages는 필수입니다" }, 400);
+    const { carrierId, label, pages, pdfUrl } = body;
+    if (!carrierId) return json({ ok: false, error: "carrierId는 필수입니다" }, 400);
+    if (!pdfUrl && (!pages || pages.length === 0)) {
+      return json({ ok: false, error: "pdfUrl 또는 pages는 필수입니다" }, 400);
     }
 
     // 다음 버전 번호
@@ -33,10 +35,12 @@ export async function handleFormVersions(request: Request, env: Env, path: strin
     ).bind(carrierId).first<{ v: number | null }>();
     const nextVersion = (last?.v || 0) + 1;
 
-    // 새 버전 생성 (비활성)
+    // pages에 PDF URL을 저장 (PDF이면 단일 URL 배열)
+    const pagesData = pdfUrl ? JSON.stringify([pdfUrl]) : JSON.stringify(pages);
+
     const result = await env.DB.prepare(
       "INSERT INTO form_versions (carrier_id, version, label, pages, is_active) VALUES (?, ?, ?, ?, 0)"
-    ).bind(carrierId, nextVersion, label || `v${nextVersion}`, JSON.stringify(pages)).run();
+    ).bind(carrierId, nextVersion, label || `v${nextVersion}`, pagesData).run();
 
     return json({ ok: true, data: { id: result.meta.last_row_id, version: nextVersion } }, 201);
   }
@@ -55,11 +59,12 @@ export async function handleFormVersions(request: Request, env: Env, path: strin
     // 선택한 버전 활성
     await env.DB.prepare("UPDATE form_versions SET is_active = 1 WHERE id = ?").bind(id).run();
 
-    // carriers 테이블에도 반영
+    // carriers 테이블에도 반영 (PDF URL 또는 첫 이미지)
     const pages = JSON.parse(ver.pages) as string[];
+    const templateUrl = pages[0] || null;
     await env.DB.prepare(
       "UPDATE carriers SET form_template = ?, form_fields = ? WHERE id = ?"
-    ).bind(pages[0] || null, ver.pages, ver.carrier_id).run();
+    ).bind(templateUrl, ver.pages, ver.carrier_id).run();
 
     return json({ ok: true });
   }

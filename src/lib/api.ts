@@ -209,8 +209,8 @@ export async function fetchFormVersions(carrierId: string): Promise<FormVersion[
   return res.data || [];
 }
 
-export async function createFormVersion(carrierId: string, label: string, pages: string[]): Promise<ApiResponse<{ id: number; version: number }>> {
-  return request("/api/form-versions", { method: "POST", body: JSON.stringify({ carrierId, label, pages }) });
+export async function createFormVersion(carrierId: string, label: string, pages?: string[], pdfUrl?: string): Promise<ApiResponse<{ id: number; version: number }>> {
+  return request("/api/form-versions", { method: "POST", body: JSON.stringify({ carrierId, label, pages, pdfUrl }) });
 }
 
 export async function activateFormVersion(id: number): Promise<ApiResponse<void>> {
