@@ -49,6 +49,7 @@ export default function AdminApplicationsPage() {
           <Link href="/admin/carriers" className={styles.sidebarLink}>📱 통신사</Link>
           <Link href="/admin/plans" className={styles.sidebarLink}>💰 요금제</Link>
           <Link href="/admin/applications" className={`${styles.sidebarLink} ${styles.sidebarLinkActive}`}>📋 신청서</Link>
+          <Link href="/admin/form-settings" className={styles.sidebarLink}>📝 신청서설정</Link>
           <Link href="/admin/notices" className={styles.sidebarLink}>📢 공지사항</Link>
           <Link href="/admin/inquiries" className={styles.sidebarLink}>💬 문의</Link>
         </nav>
@@ -60,6 +61,7 @@ export default function AdminApplicationsPage() {
         <Link href="/admin/carriers" className={styles.tabLink}><span className={styles.tabIcon}>📱</span><span className={styles.tabLabel}>통신사</span></Link>
         <Link href="/admin/plans" className={styles.tabLink}><span className={styles.tabIcon}>💰</span><span className={styles.tabLabel}>요금제</span></Link>
         <Link href="/admin/applications" className={`${styles.tabLink} ${styles.tabLinkActive}`}><span className={styles.tabIcon}>📋</span><span className={styles.tabLabel}>신청서</span></Link>
+        <Link href="/admin/form-settings" className={styles.tabLink}><span className={styles.tabIcon}>📝</span><span className={styles.tabLabel}>설정</span></Link>
         <Link href="/admin/notices" className={styles.tabLink}><span className={styles.tabIcon}>📢</span><span className={styles.tabLabel}>공지</span></Link>
         <Link href="/admin/inquiries" className={styles.tabLink}><span className={styles.tabIcon}>💬</span><span className={styles.tabLabel}>문의</span></Link>
       </nav>
