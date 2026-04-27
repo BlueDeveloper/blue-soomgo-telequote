@@ -71,26 +71,29 @@ function EditorContent() {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
-    if (!selectedMvno) return;
+    if (!selectedMvno || tree.length === 0) return;
     fetchFormVersions(selectedMvno).then(setVersions);
     const m = tree.flatMap(t => t.children || []).find(c => c.id === selectedMvno);
+    // 좌표 데이터 로드 (form_fields가 좌표 배열인 경우만)
+    setPositions([]);
     if (m?.form_fields) {
       try {
         const parsed = JSON.parse(m.form_fields);
-        // form_fields가 좌표 배열이면 로드, PDF URL 배열이면 무시
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].key) {
+        if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "object" && parsed[0].key) {
           setPositions(parsed);
         }
       } catch {}
     }
+    setCurrentPage(1);
+    pdfDocRef.current = null;
   }, [selectedMvno, tree]);
+
+  // PDF URL (form_template에서 직접)
+  const pdfUrl = mvno?.form_template || "";
 
   // PDF 렌더링
   const renderPage = useCallback(async (pageNum: number) => {
-    if (!activeVersion || !canvasRef.current) return;
-    const pages = JSON.parse(activeVersion.pages) as string[];
-    const pdfUrl = pages[0];
-    if (!pdfUrl?.endsWith(".pdf")) return;
+    if (!pdfUrl || !pdfUrl.endsWith(".pdf") || !canvasRef.current) return;
 
     showLoading("PDF 렌더링 중...");
     try {
@@ -138,14 +141,11 @@ function EditorContent() {
       toast("PDF 렌더링 실패", "error");
     }
     hideLoading();
-  }, [activeVersion, showLoading, hideLoading, toast]);
+  }, [pdfUrl, showLoading, hideLoading, toast]);
 
   useEffect(() => {
-    if (activeVersion) {
-      pdfDocRef.current = null;
-      renderPage(currentPage);
-    }
-  }, [activeVersion, currentPage, renderPage]);
+    if (pdfUrl) renderPage(currentPage);
+  }, [pdfUrl, currentPage, renderPage]);
 
   // 캔버스 클릭 → 필드 배치
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -242,7 +242,7 @@ function EditorContent() {
           </div>
         )}
 
-        {!activeVersion ? (
+        {!pdfUrl ? (
           <div className={styles.empty}>양식을 먼저 업로드하세요. <Link href="/admin/form-settings" style={{ color: "var(--brand)" }}>신청서 설정 →</Link></div>
         ) : (
           <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
