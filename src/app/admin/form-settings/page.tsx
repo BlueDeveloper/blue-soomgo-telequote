@@ -105,7 +105,11 @@ export default function FormSettingsPage() {
 
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i) as { getViewport: (o: { scale: number }) => { width: number; height: number }; render: (o: unknown) => { promise: Promise<void> } };
-          const vp = page.getViewport({ scale: 2 });
+          // A4 기준 고정 너비 (1240px)로 통일 — 페이지 크기에 관계없이 일정한 출력
+          const baseVp = page.getViewport({ scale: 1 });
+          const targetWidth = 1240;
+          const scale = targetWidth / baseVp.width;
+          const vp = page.getViewport({ scale });
           const canvas = document.createElement("canvas");
           canvas.width = vp.width; canvas.height = vp.height;
           await page.render({ canvasContext: canvas.getContext("2d")!, viewport: vp }).promise;
@@ -288,7 +292,9 @@ export default function FormSettingsPage() {
                           </div>
                         ))}
                       </div>
-                      <img key={previewPages[previewIdx]} src={previewPages[previewIdx]} alt="미리보기" style={{ width: "100%", borderRadius: 8, border: "1px solid #E8ECF1" }} />
+                      <div style={{ maxHeight: 500, overflow: "auto", borderRadius: 8, border: "1px solid #E8ECF1" }}>
+                        <img key={previewPages[previewIdx]} src={previewPages[previewIdx]} alt="미리보기" style={{ width: "100%", display: "block" }} />
+                      </div>
                     </div>
                   )}
                 </div>
