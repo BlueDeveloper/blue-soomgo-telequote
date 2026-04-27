@@ -20,7 +20,7 @@ export async function handlePdfFill(request: Request, env: Env): Promise<Respons
   if (!carrier?.form_template) return json({ ok: false, error: "양식이 등록되지 않았습니다" }, 404);
 
   // 좌표 데이터 파싱
-  let positions: { key: string; x: number; y: number; fontSize: number; page: number }[] = [];
+  let positions: { key: string; xPt?: number; yPt?: number; x?: number; y?: number; fontSize: number; page: number }[] = [];
   try {
     const parsed = JSON.parse(carrier.form_fields);
     if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.key) {
@@ -49,15 +49,20 @@ export async function handlePdfFill(request: Request, env: Env): Promise<Respons
     const value = values[pos.key] || "";
     if (!value) continue;
 
-    // % 좌표 → PDF 좌표 변환
-    // 에디터의 좌표는 좌상단 기준 %, PDF는 좌하단 기준 pt
-    const x = (pos.x / 100) * width;
-    const y = height - (pos.y / 100) * height;
+    // xPt/yPt가 있으면 PDF pt 좌표 직접 사용, 없으면 % 변환
+    let x: number, y: number;
+    if (pos.xPt !== undefined && pos.yPt !== undefined) {
+      x = pos.xPt;
+      y = pos.yPt;
+    } else {
+      x = ((pos.x || 0) / 100) * width;
+      y = height - ((pos.y || 0) / 100) * height;
+    }
 
     page.drawText(value, {
-      x: x - (value.length * (pos.fontSize || 12) * 0.3), // 대략적 중앙 정렬
-      y: y - (pos.fontSize || 12) / 2,
-      size: pos.fontSize || 12,
+      x,
+      y,
+      size: pos.fontSize || 10,
       font,
       color: rgb(0, 0, 0),
     });
