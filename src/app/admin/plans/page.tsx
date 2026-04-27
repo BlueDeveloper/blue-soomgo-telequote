@@ -135,6 +135,7 @@ function PlansContent() {
           <span className={`${styles.sidebarLink} ${styles.sidebarLinkActive}`}>💰 요금제</span>
           <Link href="/admin/applications" className={styles.sidebarLink}>📋 신청서</Link>
           <Link href="/admin/form-settings" className={styles.sidebarLink}>📝 신청서설정</Link>
+          <Link href="/admin/form-editor" className={styles.sidebarLink}>🎯 좌표에디터</Link>
           <Link href="/admin/notices" className={styles.sidebarLink}>📢 공지사항</Link>
           <Link href="/admin/inquiries" className={styles.sidebarLink}>💬 문의</Link>
         </nav>
